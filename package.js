@@ -8,7 +8,7 @@ Package.on_use(function (api) {
     api.use('underscore-string-latest', 'client');
     api.use('ngMeteor', ['client']);
     api.use('meteor-fleximodel', ['client', 'server']);
-    api.use('meteor-ng-bootstrap-datepicker', 'client');
+    api.use('meteor-ng-datepicker', 'client');
 
     // Files to load in Client only.
     api.add_files([
