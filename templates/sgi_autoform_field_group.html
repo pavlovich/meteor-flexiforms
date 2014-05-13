@@ -1,0 +1,13 @@
+<template name="_sgiAutoformFieldGroup">
+    {{#if addGroupBox}}
+        <sgi-field-group name="{{groupLabel}}" inline="{{inline}}">
+        {{#each getFields this}}
+            {{> sgiAutoformElementTemplate }}
+        {{/each}}
+    </sgi-field-group>
+    {{else}}
+        {{#each getFields this}}
+        {{> sgiAutoformElementTemplate }}
+        {{/each}}
+    {{/if}}
+</template>

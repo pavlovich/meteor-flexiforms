@@ -1,0 +1,37 @@
+<template name="sgiAutoform">
+    <div>
+    <sgi-form name="{{getFormName}}" novalidate="" class="{{getFormClass}}" ng-controller="{{getControllerName}}">
+
+        <sgi-div class="meteor-form-fields">
+            <sgi-div class="copy-width narrow">
+                <sgi-field-group name="{{formTitle}}"> <!-- New User Information -->
+
+              {{#each getModelFields model }}
+                   {{> sgiAutoformElementTemplate }}
+              {{/each}}
+<!--
+                    <sgi-field-group name="Name">
+                        <sgi-field data-id="person.name.firstName"></sgi-field>
+                        <sgi-field data-id="person.name.lastName"></sgi-field>
+                        <sgi-field data-id="person.birthdate"></sgi-field>
+                        <sgi-field data-id="person.blahdate"></sgi-field>
+                        <sgi-field data-id="person.age"></sgi-field>
+                        <sgi-field data-id="person.livedAbroad"></sgi-field>
+
+                        <sgi-field data-id="person.hair"></sgi-field>
+                        <sgi-field data-id="person.gender" ></sgi-field>
+                        <sgi-field data-id="person.smoker"></sgi-field>
+                    </sgi-field-group>
+                    <sgi-field-group name="Address">
+                        <sgi-field data-id="person.address.street1"></sgi-field>
+                        <sgi-field data-id="person.address.street2"></sgi-field>
+                    </sgi-field-group>
+-->
+
+                </sgi-field-group>
+            </sgi-div>
+        </sgi-div>
+
+    </sgi-form>
+    </div>
+</template>

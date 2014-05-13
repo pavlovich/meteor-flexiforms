@@ -1,0 +1,12 @@
+<template name="sgiFieldGroup">
+    <div class="controls-row">
+        <fieldset>
+            {{#if name}}
+                <legend>{{name}}</legend>
+            {{/if}}
+            <div class="{{inlineFlex}}">
+            {{{contents}}}
+            </div>
+        </fieldset>
+    </div>
+</template>
