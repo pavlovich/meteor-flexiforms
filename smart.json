@@ -15,7 +15,7 @@
             "git": "git://github.com/pavlovich/ngMeteor.git",
             "branch": "blaze-support"
         },
-        "meteor-ng-bootstrap-datepicker": {
+        "meteor-ng-datepicker": {
             "git": "git remote add origin git@github.com:pavlovich/meteor-ng-daterangepicker.git",
             "branch": "master"
         }
