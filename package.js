@@ -24,11 +24,11 @@ Package.on_use(function (api) {
         'templates/sgi_autoform.html',
         'templates/sgi_autoform_field.html',
         'templates/sgi_autoform_field_group.html',
+        'templates/sgi_form_buttons.html',
         'templates/sgi_autoform.js',
         'templates/sgi_autoform_field_group.js',
         'templates/sgi_text_field.js',
         'templates/sgi_field_group.js',
-        'templates/sgi_form_buttons.js',
         'meteor-forms.js'
 	], 'client');
 
