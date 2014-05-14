@@ -34,6 +34,6 @@ Package.on_use(function (api) {
     // Exports the ngMeteor package scope
     api.export('ngMeteorForms', 'client');
     api.export('ObjectTypes', ['client', 'server']);
- //   api.export('ngMeteor', 'client');
+    api.export('Models', ['client', 'server']);
     api.export('ngMeteorFleximodel', 'client');
 });
