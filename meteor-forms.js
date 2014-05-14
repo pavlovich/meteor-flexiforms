@@ -5,15 +5,15 @@
 ngMeteorFleximodel =
     angular.module('ngMeteorFleximodel', ['ngMeteor'])
         .run(['$collection', '$rootScope', function($collection, $rootScope){
-            $collection('ObjectTypes', $rootScope);
+            $collection('FlexiSpecs', $rootScope);
         }]);
 
 
 Package.ui.UI.registerHelper("sgiAutoformElementTemplate", function (a, b, c, d) {
     var templateName = '_sgiAutoformField';
     if(this && this.type){
-        var objectType = ObjectTypes.findOne({name: this.type.toString()});
-        if(objectType){
+        var flexiSpec = FlexiSpecs.findOne({name: this.type.toString()});
+        if(flexiSpec){
             templateName = '_sgiAutoformFieldGroup';
         }
     }
@@ -95,7 +95,7 @@ var fieldGetTemplate = function () {
     return this.type ? this.type : null;
 };
 
-ObjectTypes._transform = function(doc){
+FlexiSpecs._transform = function(doc){
     if (doc.fields && _.isArray(doc.fields)) {
         _.each(doc.fields, function(field){
             field.getTemplateName = fieldGetTemplate;
@@ -128,7 +128,7 @@ var getTemplateForKey = function(key){
 
 var getField = function (fieldId) {
     var typeMap = {};
-    $(ObjectTypes)
+    $(FlexiSpecs)
         .map(function() {
             typeMap[this.name] = this;
         });
@@ -141,7 +141,7 @@ var getField = function (fieldId) {
     for (var i = 0; i < counter; i++) {
         var attributeName = attributeMap[i];
         typeName = (type.fields)[attributeName].type;
-        type = ObjectTypes.findOne({name: typeName});
+        type = FlexiSpecs.findOne({name: typeName});
         if(!type){return null};
     }
     var field = (type.fields)[attributeMap[attributeMap.length - 1]];

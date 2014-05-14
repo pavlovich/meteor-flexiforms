@@ -4,7 +4,7 @@
 
 Package.templating.Template['sgiAutoform'].helpers({
     getModelFields: function(modelName, x){
-        var type = ObjectTypes.findOne({name: modelName});
+        var type = FlexiSpecs.findOne({name: modelName});
         var fieldsObject = type.fields;
         var fields = [];
         _.each(fieldsObject, function (value, index) {

@@ -5,7 +5,7 @@
 Package.templating.Template['_sgiAutoformFieldGroup'].helpers({
     getFields: function(fieldsObject) {
         var self = this;
-        var type = ObjectTypes.findOne({name: this.type.toString()});
+        var type = FlexiSpecs.findOne({name: this.type.toString()});
         var fieldsObject = type.fields;
         var fields = [];
         _.each(fieldsObject, function (value, index) {
@@ -29,7 +29,7 @@ Package.templating.Template['_sgiAutoformFieldGroup'].helpers({
     },
     addGroupBox: function(a, b, c){
         return !(this.embed);
-       // var objType = ObjectTypes.findOne({name: this.type.toString()});
+       // var objType = FlexiSpecs.findOne({name: this.type.toString()});
        // return !(objType && objType.embed);
     }
 });
