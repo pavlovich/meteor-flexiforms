@@ -166,10 +166,10 @@ var expandElement = function(element, attrs) {
 
 var setFormName = function(receiver, element){
     var formName = null;
-  //  try {
-        form = $(element).closest('form').get(0);
-        formName = form.name;
-  //  }catch(e){}
+    //  try {
+    form = $(element).closest('form').get(0);
+    formName = form.name;
+    //  }catch(e){}
     receiver.formName = formName;
 };
 
@@ -240,9 +240,7 @@ ngMeteorForms.errorTypes = {
     'required': ['text', 'textarea', 'date', 'time', 'datetime', 'integer', 'float'],
     'minlength': ['text', 'textarea', 'integer', 'float', 'url', 'email'],
     'maxlength': ['text', 'textarea', 'integer', 'float', 'url', 'email'],
-    'pattern': ['text', 'textarea', 'integer', 'float', 'url', 'email'],
-
-
+    'pattern': ['text', 'textarea', 'integer', 'float', 'url', 'email']
 }
 
 ngMeteorForms
@@ -291,15 +289,28 @@ ngMeteorForms
             restrict: 'E',
             scope: true,
             controller: ['$scope', function($scope){
-
+                $scope.model = {};
+                $scope.model = {gender: 'male', name: {firstName: 'Wilbur', lastName: 'Jones'}};
+                $scope.save = function(){
+                    this.preSave();
+                    console.log("Built-in Save happening now!")
+                    FlexiModels[this.flexiModelname].insert(this.model);
+                    console.log("Built-in Save complete.")
+                    this.postSave();
+                };
+                $scope.preSave = function(){
+                    console.log('preSave from internal controller');
+                };
+                $scope.postSave = function(){
+                    console.log('postSave from internal controller');
+                };
             }],
             compile: function compile(element, attrs){
-                var currentElement = 'hello';
                 expandElement(element, attrs);
                 return {
                     pre: function preLink(scope, iElement, iAttrs, controller){
                         Deps.autorun(function(){
-
+                            scope.flexiModelname = iAttrs['model'];
                         })
                     }
                 }

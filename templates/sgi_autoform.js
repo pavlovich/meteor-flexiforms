@@ -2,6 +2,17 @@
  * Created by pavlovich on 5/6/14.
  */
 
+var _getControllerName = function(){
+    if(this.ngController){
+        return this.ngController;
+    }else{
+        if(this.model){
+            return _.camelize(this.model) + "Controller";
+        }
+        return 'testController';
+    }
+}
+
 Package.templating.Template['sgiAutoform'].helpers({
     getModelFields: function(modelName, x){
         var type = FlexiSpecs.findOne({name: modelName});
@@ -32,17 +43,30 @@ Package.templating.Template['sgiAutoform'].helpers({
             if(this.model){
                 return _.camelize(this.model) + "Form";
             }
-            return 'xtestForm';
+            return 'testForm';
+        }
+    },
+    getNgControllerAttribute: function(a, b, c){
+        var hasController = false;
+        _.each(ngMeteorForms._invokeQueue, function(queuedAngularConstructor){
+            if(queuedAngularConstructor[1] && queuedAngularConstructor[1] == "register"){
+                if(queuedAngularConstructor[2]){
+                    if(queuedAngularConstructor[2][0]){
+                        if(queuedAngularConstructor[2][0] == _getControllerName()){
+                            hasController = true;
+                        }
+                    }
+                }
+            }
+        });
+
+        if(hasController){
+            return ' ng-controller="' + this.getControllerName() + '"';
+        } else {
+            return "";
         }
     },
     getControllerName: function(){
-        if(this.ngController){
-            return this.ngController;
-        }else{
-            if(this.model){
-                return _.camelize(this.model) + "Controller";
-            }
-            return 'testController';
-        }
+        return _getControllerName();
     }
 });
