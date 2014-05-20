@@ -2,7 +2,7 @@
  * Created by pavlovich on 5/7/14.
  */
 
-Package.templating.Template['_sgiAutoformFieldGroup'].helpers({
+Package.templating.Template['_flexiformsAutoformFieldGroup'].helpers({
     getFields: function(fieldsObject) {
         var self = this;
         var type = FlexiSpecs.findOne({name: this.type.toString()});

@@ -1,13 +1,13 @@
-<template name="_sgiAutoformFieldGroup">
+<template name="_flexiformsAutoformFieldGroup">
     {{#if addGroupBox}}
-        <sgi-field-group name="{{groupLabel}}" inline="{{inline}}">
+        <flexiforms-field-group name="{{groupLabel}}" inline="{{inline}}">
         {{#each getFields this}}
-            {{> sgiAutoformElementTemplate }}
+            {{> flexiformsAutoformElementTemplate }}
         {{/each}}
-    </sgi-field-group>
+    </flexiforms-field-group>
     {{else}}
         {{#each getFields this}}
-        {{> sgiAutoformElementTemplate }}
+        {{> flexiformsAutoformElementTemplate }}
         {{/each}}
     {{/if}}
 </template>

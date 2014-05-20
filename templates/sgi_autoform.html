@@ -1,34 +1,34 @@
-<template name="sgiAutoform">
+<template name="flexiformsAutoform">
     <div>
-        <sgi-form name="{{getFormName}}" novalidate="" class="{{getFormClass}}" {{getNgControllerAttribute}}>
-            <sgi-div class="meteor-form-fields">
-                <sgi-div class="copy-width narrow">
-                    <sgi-field-group name="{{formTitle}}"> <!-- New User Information -->
+        <flexiforms-form name="{{getFormName}}" novalidate="" class="{{getFormClass}}" {{getNgControllerAttribute}}>
+            <flexiforms-div class="meteor-form-fields">
+                <flexiforms-div class="copy-width narrow">
+                    <flexiforms-field-group name="{{formTitle}}"> <!-- New User Information -->
                         {{#each getModelFields model }}
-                        {{> sgiAutoformElementTemplate }}
+                        {{> flexiformsAutoformElementTemplate }}
                         {{/each}}
-                    </sgi-field-group>
-                </sgi-div>
-            </sgi-div>
-        </sgi-form>
+                    </flexiforms-field-group>
+                </flexiforms-div>
+            </flexiforms-div>
+        </flexiforms-form>
     </div>
 </template>
 
 <!--
-    <sgi-field-group name="Name">
-        <sgi-field data-id="person.name.firstName"></sgi-field>
-        <sgi-field data-id="person.name.lastName"></sgi-field>
-        <sgi-field data-id="person.birthdate"></sgi-field>
-        <sgi-field data-id="person.blahdate"></sgi-field>
-        <sgi-field data-id="person.age"></sgi-field>
-        <sgi-field data-id="person.livedAbroad"></sgi-field>
+    <flexiforms-field-group name="Name">
+        <flexiforms-field data-id="person.name.firstName"></flexiforms-field>
+        <flexiforms-field data-id="person.name.lastName"></flexiforms-field>
+        <flexiforms-field data-id="person.birthdate"></flexiforms-field>
+        <flexiforms-field data-id="person.blahdate"></flexiforms-field>
+        <flexiforms-field data-id="person.age"></flexiforms-field>
+        <flexiforms-field data-id="person.livedAbroad"></flexiforms-field>
 
-        <sgi-field data-id="person.hair"></sgi-field>
-        <sgi-field data-id="person.gender" ></sgi-field>
-        <sgi-field data-id="person.smoker"></sgi-field>
-    </sgi-field-group>
-    <sgi-field-group name="Address">
-        <sgi-field data-id="person.address.street1"></sgi-field>
-        <sgi-field data-id="person.address.street2"></sgi-field>
-    </sgi-field-group>
+        <flexiforms-field data-id="person.hair"></flexiforms-field>
+        <flexiforms-field data-id="person.gender" ></flexiforms-field>
+        <flexiforms-field data-id="person.smoker"></flexiforms-field>
+    </flexiforms-field-group>
+    <flexiforms-field-group name="Address">
+        <flexiforms-field data-id="person.address.street1"></flexiforms-field>
+        <flexiforms-field data-id="person.address.street2"></flexiforms-field>
+    </flexiforms-field-group>
 -->

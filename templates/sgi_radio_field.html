@@ -1,9 +1,9 @@
-<template name="sgiRadioField">
+<template name="flexiformsRadioField">
     <div class="form-group">
         <label for="{{modelId}}">[[field.label]]</label>
-            <div class="radio-group sgi-tooltip {{orientation}}" title="[[field.message]]">
+            <div class="radio-group flexiforms-tooltip {{orientation}}" title="[[field.message]]">
             {{#each options.collection }}
-            <sgi-radio-button ng-model="{{modelId}}" name="{{name}}" id="{{name}}.{{value}}" value="{{value}}" label="{{label}}"></sgi-radio-button>
+            <flexiforms-radio-button ng-model="{{modelId}}" name="{{name}}" id="{{name}}.{{value}}" value="{{value}}" label="{{label}}"></flexiforms-radio-button>
             {{/each}}
             </div>
     </div>

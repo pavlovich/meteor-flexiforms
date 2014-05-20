@@ -9,18 +9,18 @@ ngMeteorFleximodel =
         }]);
 
 
-Package.ui.UI.registerHelper("sgiAutoformElementTemplate", function (a, b, c, d) {
-    var templateName = '_sgiAutoformField';
+Package.ui.UI.registerHelper("flexiformsAutoformElementTemplate", function (a, b, c, d) {
+    var templateName = '_flexiformsAutoformField';
     if(this && this.type){
         var flexiSpec = FlexiSpecs.findOne({name: this.type.toString()});
         if(flexiSpec){
-            templateName = '_sgiAutoformFieldGroup';
+            templateName = '_flexiformsAutoformFieldGroup';
         }
     }
     return Package.templating.Template[templateName];
 });
 
-Package.ui.UI.registerHelper("sgiInline", function () {
+Package.ui.UI.registerHelper("flexiformsInline", function () {
     if(this.inline){
         return " inline";
     }else{
@@ -150,15 +150,15 @@ var getField = function (fieldId) {
     return field;
 };
 
-var getSgiElementTemplate = function(element, attrs){
+var getflexiformsElementTemplate = function(element, attrs){
     var templateName = element[0].localName.toCamel();
     var template = getTemplateForKey(templateName);
-    template = (template.sgiTemplate && typeof template.sgiTemplate == 'function') ? template.sgiTemplate(element, attrs) : template;
+    template = (template.flexiformsTemplate && typeof template.flexiformsTemplate == 'function') ? template.flexiformsTemplate(element, attrs) : template;
     return template;
 };
 
 var expandElement = function(element, attrs) {
-    var template = getSgiElementTemplate(element, attrs);
+    var template = getflexiformsElementTemplate(element, attrs);
     var context = template.createContext(element, attrs);
     var result = ngMeteor.renderTemplateInContext(template, context);
     element.replaceWith(result);
@@ -244,7 +244,7 @@ ngMeteorForms.errorTypes = {
 }
 
 ngMeteorForms
-    .directive('sgiField', ['$compile', '$rootScope', '$window', function ($compile, $rootScope, $window) {
+    .directive('flexiformsField', ['$compile', '$rootScope', '$window', function ($compile, $rootScope, $window) {
         return {
             restrict: 'E',
             scope: true,
@@ -284,7 +284,7 @@ ngMeteorForms
             }
         };
     }])
-    .directive('sgiAutoform', ['$compile', '$rootScope', '$window', function ($compile, $rootScope, $window) {
+    .directive('flexiformsAutoform', ['$compile', '$rootScope', '$window', function ($compile, $rootScope, $window) {
         return {
             restrict: 'E',
             scope: true,
@@ -321,21 +321,21 @@ ngMeteorForms
 Package.meteor.Meteor.startup(function(){
 
     var fieldTemplateNames = [];
-    var otherSgiTemplateNames = [];
+    var otherflexiformsTemplateNames = [];
 
     for(key in Package.templating.Template){
         if(Package.templating.Template.hasOwnProperty(key)){
-            if(key.match('^(sgi).+')) {
-                if (key.match('^(sgi).*(Field)$')) {
+            if(key.match('^(flexiforms).+')) {
+                if (key.match('^(flexiforms).*(Field)$')) {
                     fieldTemplateNames.push(key);
                 } else {
-                    otherSgiTemplateNames.push(key);
+                    otherflexiformsTemplateNames.push(key);
                 }
             }
         }
     };
 
-    _.each(otherSgiTemplateNames, function(directiveName){
+    _.each(otherflexiformsTemplateNames, function(directiveName){
         var directiveDefinition = {
             restrict: 'E',
             scope: true,
@@ -348,18 +348,18 @@ Package.meteor.Meteor.startup(function(){
 
         var template = getTemplateForKey(directiveName);
         template.createContext = createBasicContext;
-        template.sgiTemplate = function(element, attrs){return this};
+        template.flexiformsTemplate = function(element, attrs){return this};
     });
 
     _.each(fieldTemplateNames, function(templateName){
 
-        var sgiFieldTemplate = getTemplateForKey(templateName);
+        var flexiformsFieldTemplate = getTemplateForKey(templateName);
 
-        sgiFieldTemplate.createContext = function(element, attrs){
+        flexiformsFieldTemplate.createContext = function(element, attrs){
             return getBasicContextObject(element, attrs);
         }
 
-        sgiFieldTemplate.sgiTemplate = function(element, attrs){
+        flexiformsFieldTemplate.flexiformsTemplate = function(element, attrs){
             var template = null;
             var context = this.createContext(element, attrs);
             if(context){  // && context.template){
@@ -370,15 +370,15 @@ Package.meteor.Meteor.startup(function(){
 //                    templateName = context.template.name;
 //                }
                 var templateName = context.getTemplateName();
-                sgiTemplateKey = 'sgi' + _.capitalize(templateName) + 'Field';
-                template = getTemplateForKey(sgiTemplateKey);
+                flexiformsTemplateKey = 'flexiforms' + _.capitalize(templateName) + 'Field';
+                template = getTemplateForKey(flexiformsTemplateKey);
             }
-            return template ? template : getTemplateForKey('sgiTextField');
+            return template ? template : getTemplateForKey('flexiformsTextField');
         }
 
     });
 
-    var radioField = getTemplateForKey('sgiRadioField');
+    var radioField = getTemplateForKey('flexiformsRadioField');
 
     radioField.createContext = function(element, attrs){
         var context = getBasicContextObject(element, attrs);
@@ -392,15 +392,15 @@ Package.meteor.Meteor.startup(function(){
         }
     }
 
-    var radioButton = getTemplateForKey('sgiRadioButton');
+    var radioButton = getTemplateForKey('flexiformsRadioButton');
 
     radioButton.createContext = function(element, attrs){
         return _.clone(attrs);
     }
 
-    var sgiAutoform = getTemplateForKey('sgiAutoform');
+    var flexiformsAutoform = getTemplateForKey('flexiformsAutoform');
 
-    sgiAutoform.createContext = function(element, attrs){
+    flexiformsAutoform.createContext = function(element, attrs){
         var context = createBasicContext(element, attrs);
         context.formTitle = "New User Information";
         return context;

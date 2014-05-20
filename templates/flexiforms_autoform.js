@@ -13,7 +13,7 @@ var _getControllerName = function(){
     }
 }
 
-Package.templating.Template['sgiAutoform'].helpers({
+Package.templating.Template['flexiformsAutoform'].helpers({
     getModelFields: function(modelName, x){
         var type = FlexiSpecs.findOne({name: modelName});
         var fieldsObject = type.fields;

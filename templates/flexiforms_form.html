@@ -1,10 +1,10 @@
-<template name="sgiForm">
+<template name="flexiformsForm">
     <div ng-controller="{{ngController}}">
         <form novalidate name="{{name}}" class="{{class}}">
             <div class="form-inline">
                 {{{contents}}}
             </div>
-            {{> sgiFormButtons }}
+            {{> flexiformsFormButtons }}
         </form>
     </div>
 </template>
@@ -16,7 +16,7 @@
     <div class="copy-width narrow">
         <div class="fields">
             {{#each fields}}
-            <sgi-field id="{{id}}"></sgi-field>
+            <flexiforms-field id="{{id}}"></flexiforms-field>
             {{/each}}
         </div>
 
