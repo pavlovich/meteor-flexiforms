@@ -2,8 +2,8 @@
  * Created by pavlovich on 4/14/14.
  */
 
-ngMeteorFleximodel =
-    angular.module('ngMeteorFleximodel', ['ngMeteor'])
+ngFleximodel =
+    angular.module('ngFleximodel', ['ngMeteor'])
         .run(['$collection', '$rootScope', function($collection, $rootScope){
             $collection('FlexiSpecs', $rootScope);
         }]);
@@ -28,9 +28,9 @@ Package.ui.UI.registerHelper("flexiformsInline", function () {
     }
 });
 
-ngMeteorForms = angular.module('ngMeteorForms', ['ngMeteorFleximodel']);
+ngFlexiforms = angular.module('ngFlexiforms', ['ngFleximodel']);
 
-ngMeteorForms.templateMapping = {
+ngFlexiforms.templateMapping = {
     'date': 'datepicker',
     'daterange': 'daterange',
     'date': 'date',
@@ -82,8 +82,8 @@ var fieldGetTemplate = function () {
             }
         }
     }
-    if (this.type && ngMeteorForms.templateMapping && this.type in ngMeteorForms.templateMapping) {
-        var result = ngMeteorForms.templateMapping[this.type];
+    if (this.type && ngFlexiforms.templateMapping && this.type in ngFlexiforms.templateMapping) {
+        var result = ngFlexiforms.templateMapping[this.type];
         if (result) {
             if (typeof result == 'function') {
                 return result.call(this);
@@ -104,7 +104,7 @@ FlexiSpecs._transform = function(doc){
     return doc;
 };
 
-ngMeteorForms.templateRegistry = {};
+ngFlexiforms.templateRegistry = {};
 
 String.prototype.toCamel = function(){
     return this.replace(/(\-[a-z])/g, function($1){return $1.toUpperCase().replace('-','');});
@@ -120,7 +120,7 @@ var getModelId = function(dataId) {
 };
 
 var getTemplateForKey = function(key){
-    var templateKey = ngMeteorForms.templateRegistry[key] ? ngMeteorForms.templateRegistry[key] : key;
+    var templateKey = ngFlexiforms.templateRegistry[key] ? ngFlexiforms.templateRegistry[key] : key;
     var result = Package.templating.Template[templateKey];
     // TODO ::  console.log("Couldn't find a template with name: '" + templateKey + "' which you indicated should override the framework template named '" + key + "'. Using the framework template as a fallback");
     return result ? result : Package.templating.Template[key];
@@ -234,7 +234,7 @@ var getBasicContextObject = function(element, attrs){
     return field;
 };
 
-ngMeteorForms.errorTypes = {
+ngFlexiforms.errorTypes = {
     'max': ['date', 'time', 'datetime', 'integer', 'float'],
     'min': ['date', 'time', 'datetime', 'integer', 'float'],
     'required': ['text', 'textarea', 'date', 'time', 'datetime', 'integer', 'float'],
@@ -243,7 +243,7 @@ ngMeteorForms.errorTypes = {
     'pattern': ['text', 'textarea', 'integer', 'float', 'url', 'email']
 }
 
-ngMeteorForms
+ngFlexiforms
     .directive('flexiformsField', ['$compile', '$rootScope', '$window', function ($compile, $rootScope, $window) {
         return {
             restrict: 'E',
@@ -344,7 +344,7 @@ Package.meteor.Meteor.startup(function(){
             }
         };
 
-        ngMeteorForms.directive(directiveName, function(){return directiveDefinition});
+        ngFlexiforms.directive(directiveName, function(){return directiveDefinition});
 
         var template = getTemplateForKey(directiveName);
         template.createContext = createBasicContext;
@@ -409,4 +409,4 @@ Package.meteor.Meteor.startup(function(){
 
 });
 
-ngMeteor.addFlexistrap('div.meteor-form', 'ngMeteorForms', '*', true);
+ngMeteor.addFlexistrap('div.meteor-form', 'ngFlexiforms', '*', true);

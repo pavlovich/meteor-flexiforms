@@ -48,7 +48,7 @@ Package.templating.Template['flexiformsAutoform'].helpers({
     },
     getNgControllerAttribute: function(a, b, c){
         var hasController = false;
-        _.each(ngMeteorForms._invokeQueue, function(queuedAngularConstructor){
+        _.each(ngFlexiforms._invokeQueue, function(queuedAngularConstructor){
             if(queuedAngularConstructor[1] && queuedAngularConstructor[1] == "register"){
                 if(queuedAngularConstructor[2]){
                     if(queuedAngularConstructor[2][0]){
