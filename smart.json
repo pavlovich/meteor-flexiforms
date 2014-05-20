@@ -1,14 +1,14 @@
 {
-	"name": "meteor-forms",
+	"name": "flexiforms",
 	"description": "Internationalizable, meta-data-driven, angular-based forms for meteor.",
-	"homepage": "https://github.com/pavlovich/meteor-forms",
+	"homepage": "https://github.com/pavlovich/flexiforms",
 	"author": "Peter Pavlovich",
-	"git": "https://github.com/pavlovich/meteor-forms.git",
+	"git": "https://github.com/pavlovich/flexiforms.git",
 	"version": "0.0.1",
 	"packages": {
         "underscore-string-latest": {},
-        "meteor-fleximodel": {
-            "git": "git://github.com/pavlovich/meteor-fleximodel.git",
+        "fleximodel": {
+            "git": "git://github.com/pavlovich/fleximodel.git",
             "branch": "master"
         },
         "ngMeteor": {
