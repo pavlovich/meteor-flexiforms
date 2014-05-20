@@ -37,4 +37,5 @@ Package.on_use(function (api) {
     api.export('FlexiSpecs', ['client', 'server']);
     api.export('FlexiModel', ['client', 'server']);
     api.export('FlexiModels', ['client', 'server']);
+    api.export('ngMeteorFleximodel', 'client');
 });
