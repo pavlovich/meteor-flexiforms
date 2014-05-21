@@ -4,7 +4,7 @@
 	"homepage": "https://github.com/pavlovich/meteor-forms",
 	"author": "Peter Pavlovich",
 	"git": "https://github.com/pavlovich/meteor-forms.git",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"packages": {
         "underscore-string-latest": {},
         "meteor-fleximodel": {
