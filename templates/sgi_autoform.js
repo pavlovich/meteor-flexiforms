@@ -2,12 +2,21 @@
  * Created by pavlovich on 5/6/14.
  */
 
+var getAttributeFromElement = function(element, attributeName){
+    if(element && element.context && element.context.getAttribute(attributeName)){
+        return element.context.getAttribute(attributeName);
+    }
+    return null;
+}
+
 var _getControllerName = function(element){
-    if(element && element.context && element.context.getAttribute('meteor-forms-controller')){
-        return element.context.getAttribute('meteor-forms-controller');
+    var result = getAttributeFromElement(element, 'meteor-forms-controller');
+    if(result){
+        return result;
     }else{
-        if(element && element.context && element.context.getAttribute('model')){
-            return _.camelize(element.context.getAttribute('model')) + "Controller";
+        result = getAttributeFromElement(element, 'model');
+        if(result){
+            return _.camelize(result) + "Controller";
         }
         return 'testController';
     }
@@ -29,19 +38,22 @@ Package.templating.Template['sgiAutoform'].helpers({
             }});
         return fields;
     },
-    getFormClass: function(){
-        if(this.class){
-            return this.class;
+    getFormClass: function(element){
+        var result = getAttributeFromElement(element, 'class');
+        if(result){
+            return result;
         }else{
             return 'simple-form';
         }
     },
-    getFormName: function(){
-        if(this.name){
-            return this.name;
+    getFormName: function(element){
+        var result = getAttributeFromElement(element, 'name');
+        if(result){
+            return result;
         }else{
-            if(this.model){
-                return _.camelize(this.model) + "Form";
+            result = getAttributeFromElement(element, 'model');
+            if(result){
+                return _.camelize(result) + "Form";
             }
             return 'testForm';
         }
@@ -59,16 +71,14 @@ Package.templating.Template['sgiAutoform'].helpers({
                 }
             }
         });
-        if (element && element.context && element.context.getAttribute('meteor-forms-controller') && !hasController){
-            console.log("Expected to find angular controller with name: '" + element.context.getAttribute('meteor-forms-controller') + "'.");
+        result = getAttributeFromElement(element, 'meteor-forms-controller');
+        if (result && !hasController){
+            console.log("Expected to find angular controller with name: '" + result + "'.");
         }
         return hasController;
     },
     getControllerName: function(element){
         return _getControllerName(element);
-    },
-    getModelId: function(){
-        return modelId;
     },
     getElement: function(){
         return this.$$element;
