@@ -8,8 +8,11 @@ ngMeteorFleximodel =
             $collection('FlexiSpecs', $rootScope);
         }]);
 
-
-Package.ui.UI.registerHelper("sgiAutoformElementTemplate", function (a, b, c, d) {
+/**
+ * Output a field group element if the current element has a 'type' which matches the name of a FlexiType document.
+ * Otherwise, just output a field element.
+ */
+Package.ui.UI.registerHelper("sgiAutoformElementTemplate", function () {
     var templateName = '_sgiAutoformField';
     if(this && this.type){
         var flexiSpec = FlexiSpecs.findOne({name: this.type.toString()});
@@ -20,6 +23,10 @@ Package.ui.UI.registerHelper("sgiAutoformElementTemplate", function (a, b, c, d)
     return Package.templating.Template[templateName];
 });
 
+/**
+ * If the current element has 'inline' set to true, output the string 'inline' to be output as a marker attribute for the current element.
+ * Otherwise, output an empty string.
+ */
 Package.ui.UI.registerHelper("sgiInline", function () {
     if(this.inline){
         return " inline";
@@ -28,8 +35,19 @@ Package.ui.UI.registerHelper("sgiInline", function () {
     }
 });
 
+/**
+ * Create an angular module named 'ngMeteorForms' on which we will hang all of our directives
+ * and from which meteor-forms users will derive their own controllers when user-defined controllers are needed.
+ */
 ngMeteorForms = angular.module('ngMeteorForms', ['ngMeteorFleximodel']);
 
+/**
+ * Define a hash which maps the 'type' of a fleximodel field to an 'input' element's 'type' attribute value. This value
+ * will be used to set the value of the type attribute assigned to the 'input' element generated for the given field.
+ * In the case that the 'value' is actually a function, the field spec will be passed in to the function as 'this' and
+ * it is expected that the function will return a string which will then be used as the value of the 'type' attribute
+ * for the generated input element.
+ */
 ngMeteorForms.templateMapping = {
     'date': 'datepicker',
     'daterange': 'daterange',
@@ -69,6 +87,12 @@ ngMeteorForms.templateMapping = {
     }
 };
 
+/**
+ * As we prepare the fields of a flexispec to be used by the framework, we attach this function as the value of the
+ * 'getTemplate' attribute. This allows us to later call this function in order to determine which template we should
+ * use to replace the generated field element with a real html input element or radio group. We assign this function
+ *
+ */
 var fieldGetTemplate = function () {
     if (this.template) {
         if (typeof this.template == 'string') {
@@ -289,8 +313,12 @@ ngMeteorForms
             restrict: 'E',
             scope: true,
             controller: ['$scope', function($scope){
-                $scope.model = {};
-                $scope.model = {gender: 'male', name: {firstName: 'Wilbur', lastName: 'Jones'}};
+                var self = this;
+                $scope.getModel = function(){
+                    return this.model;
+                };
+                $window.innerScope = $scope;
+                $scope.model = {gender: 'female', name: {firstName: 'Abbey', lastName: 'Pavlovich'}};
                 $scope.save = function(){
                     this.preSave();
                     console.log("Built-in Save happening now!")

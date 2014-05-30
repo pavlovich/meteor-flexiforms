@@ -2,14 +2,14 @@
  * Created by pavlovich on 5/6/14.
  */
 
-var _getControllerName = function(){
+var _getControllerName = function(x){
     if(this.ngController){
         return this.ngController;
     }else{
         if(this.model){
             return _.camelize(this.model) + "Controller";
         }
-        return 'testController';
+        return 'personController';
     }
 }
 
@@ -46,7 +46,7 @@ Package.templating.Template['sgiAutoform'].helpers({
             return 'testForm';
         }
     },
-    getNgControllerAttribute: function(a, b, c){
+    hasController: function(){
         var hasController = false;
         _.each(ngMeteorForms._invokeQueue, function(queuedAngularConstructor){
             if(queuedAngularConstructor[1] && queuedAngularConstructor[1] == "register"){
@@ -59,14 +59,12 @@ Package.templating.Template['sgiAutoform'].helpers({
                 }
             }
         });
-
-        if(hasController){
-            return ' ng-controller="' + this.getControllerName() + '"';
-        } else {
-            return "";
-        }
+        return hasController;
     },
     getControllerName: function(){
         return _getControllerName();
+    },
+    getModelId: function(){
+        return modelId;
     }
 });

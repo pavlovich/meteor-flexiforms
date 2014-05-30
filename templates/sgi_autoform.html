@@ -1,16 +1,30 @@
 <template name="sgiAutoform">
     <div>
-        <sgi-form name="{{getFormName}}" novalidate="" class="{{getFormClass}}" {{getNgControllerAttribute}}>
-            <sgi-div class="meteor-form-fields">
-                <sgi-div class="copy-width narrow">
-                    <sgi-field-group name="{{formTitle}}"> <!-- New User Information -->
-                        {{#each getModelFields model }}
-                        {{> sgiAutoformElementTemplate }}
-                        {{/each}}
-                    </sgi-field-group>
+        {{#if hasController}}
+            <sgi-form name="{{getFormName}}" novalidate="" class="{{getFormClass}}" ng-controller="{{getControllerName}}" >
+                <sgi-div class="meteor-form-fields">
+                    <sgi-div class="copy-width narrow">
+                        <sgi-field-group name="{{formTitle}}"> <!-- New User Information -->
+                            {{#each getModelFields model }}
+                            {{> sgiAutoformElementTemplate }}
+                            {{/each}}
+                        </sgi-field-group>
+                    </sgi-div>
                 </sgi-div>
-            </sgi-div>
-        </sgi-form>
+            </sgi-form>
+        {{else}}
+            <sgi-form name="{{getFormName}}" novalidate="" class="{{getFormClass}}" >
+                <sgi-div class="meteor-form-fields">
+                    <sgi-div class="copy-width narrow">
+                        <sgi-field-group name="{{formTitle}}"> <!-- New User Information -->
+                            {{#each getModelFields model }}
+                            {{> sgiAutoformElementTemplate }}
+                            {{/each}}
+                        </sgi-field-group>
+                    </sgi-div>
+                </sgi-div>
+            </sgi-form>
+        {{/if}}
     </div>
 </template>
 
