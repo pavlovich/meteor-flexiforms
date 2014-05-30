@@ -276,7 +276,7 @@ var getField = function (fieldId) {
  * Return a template suitable to use in replacing the supplied element and attendant attributes.
  *
  * In more detail, we take the supplied element and, since it is a jQuery-wrapped element, we extract the
- * 'real' element using 'element[0]'. Next, we get the element's local name (which is just the name of the element
+ * 'real' element using 'element.context'. Next, we get the element's local name (which is just the name of the element
  * as it appears right after the '<' in the HTML notation for that element. We then convert that element name to
  * camel case (since it is most likely in x-y-z format). Now this is assumedly the 'stock' name of the desired template
  * to use to replace the element under consideration. We then check to see if the framework user has registered their
@@ -292,7 +292,7 @@ var getField = function (fieldId) {
  * field template with an appropriate specific template like 'radio' or 'date picker'
  */
 var getSgiElementTemplate = function(element, attrs){
-    var templateName = element[0].localName.toCamel();
+    var templateName = element.context.localName.toCamel();
     var template = getTemplateForKey(templateName);
     template = (template.sgiTemplate && typeof template.sgiTemplate == 'function') ? template.sgiTemplate(element, attrs) : template;
     return template;
@@ -375,7 +375,7 @@ var getGlobal = function(globalName){
  */
 var createNonFieldContext = function(element, attrs){
     var context = _.clone(attrs);
-    context.contents = element[0].innerHTML;
+    context.contents = element.context.innerHTML;
     return context;
 };
 
