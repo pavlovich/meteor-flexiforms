@@ -1,7 +1,7 @@
 <template name="sgiAutoform">
     <div>
-        {{#if hasController}}
-            <sgi-form name="{{getFormName}}" novalidate="" class="{{getFormClass}}" ng-controller="{{getControllerName}}" >
+        {{#if hasController getElement}}
+            <sgi-form name="{{getFormName}}" novalidate="" class="{{getFormClass}}" ng-controller="{{getControllerName getElement}}" >
                 <sgi-div class="meteor-form-fields">
                     <sgi-div class="copy-width narrow">
                         <sgi-field-group name="{{formTitle}}"> <!-- New User Information -->
