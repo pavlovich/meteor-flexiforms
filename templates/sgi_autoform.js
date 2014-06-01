@@ -2,6 +2,9 @@
  * Created by pavlovich on 5/6/14.
  */
 
+/**
+ * Given an <element>, return the value of the requested <attributName>.
+ */
 var getAttributeFromElement = function(element, attributeName){
     if(element && element.context && element.context.getAttribute(attributeName)){
         return element.context.getAttribute(attributeName);
@@ -9,6 +12,13 @@ var getAttributeFromElement = function(element, attributeName){
     return null;
 }
 
+/**
+ * Return the name that should be used to identify the angular controller to be applied for the provided <element>.
+ *
+ * In detail, if the <element> provided has an attribute named 'meteor-forms-controller', return the value of that attribute.
+ * If it does not have such an attribute but does have a 'model' attribute, return the value of that attribute, in camelCase + 'Controller'.
+ * If neither of these attributes are defined on the <element>, then return 'testController'.
+ */
 var _getControllerName = function(element){
     var result = getAttributeFromElement(element, 'meteor-forms-controller');
     if(result){
@@ -22,19 +32,28 @@ var _getControllerName = function(element){
     }
 };
 
+/**
+ * Define spacebars helpers for the Autoform template.
+ */
 Package.templating.Template['sgiAutoform'].helpers({
-    getModelFields: function(modelName, x){
+    /**
+     * For the provided <modelName>, return a collection of fields to use in generating a form-based UI for that flexisepc.
+     *
+     * In detail, look up the flexispec corresponding to the provided <modelName>. Retrieve and clone each of
+     * this flexispec's fields, augmenting each clone wih additional attributes including the base modelId (my parent's
+     * id + '.' + my field name), my 'field' spec and my 'parentField'
+     */
+    getModelFields: function(modelName){
         var type = FlexiSpecs.findOne({name: modelName});
         var fieldsObject = type.fields;
         var fields = [];
-        _.each(fieldsObject, function (value, index) {
-            if(fieldsObject.hasOwnProperty(index)) {
-                var obj = _.clone(value);
-                obj.base = modelName + "." + index;
-                obj.field = value;
-                obj.parentField = type;
-                obj.showLabel = 'i did it here';
-                fields.push(obj);
+        _.each(fieldsObject, function (fieldSpec, fieldName) {
+            if(fieldsObject.hasOwnProperty(fieldName)) {
+                var fieldModel = _.clone(fieldSpec);
+                fieldModel.base = modelName + "." + fieldName;
+                fieldModel.field = fieldSpec;
+                fieldModel.parentField = type;
+                fields.push(fieldModel);
             }});
         return fields;
     },
