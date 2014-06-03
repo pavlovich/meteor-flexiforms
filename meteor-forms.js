@@ -444,6 +444,7 @@ var getFieldAsContextObject = function(element, attrs){
         setFormName(field, element);
         field.modelId = getModelId(attrs.id);
         field.id = attrs.id;
+        field.fieldId = attrs.id.replace(/\./g,'');
         field.inline = attrs.inline;
         field.showLabel = field.inline ? false : true;
 
