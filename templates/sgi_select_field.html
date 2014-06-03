@@ -7,7 +7,9 @@
             <span class="input-group-addon" ng-if="field.prefix">
                 [[field.prefix]]
             </span>
-            <select ng-model="{{modelId}}" name="{{name}}" ng-required="{{validation.required.value}}" class="form-control" ng-options="opt.{{options.label}} group by opt.{{options.group}} for opt in options" title="[[field.message]]"></select>
+            <select ng-model="{{modelId}}" name="{{name}}" ng-required="{{validation.required.value}}" class="form-control" ng-options="opt.{{options.label}} group by opt.{{options.group}} for opt in options" title="[[field.message]]">
+                <option value="" ng-if="field.message">[[field.message]]</option>
+            </select>
         </div>
         <div class="error" ng-if="showErrorMessageFor('required')"><span class="error" ng-show="{{formName}}.{{name}}.$dirty && {{formName}}.{{name}}.$error.required">[[field.validation.required.message || 'Please enter a value!']]</span></div>
     </div>
