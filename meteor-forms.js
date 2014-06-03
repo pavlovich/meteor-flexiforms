@@ -67,6 +67,25 @@ ngMeteorForms = angular.module('ngMeteorForms', ['ngMeteorFleximodel']);
 ngMeteorForms.templateRegistry = {};
 
 /**
+ * Return the size of the collection which should be used to populate the selection options for the
+ * single or multi-selection control specified by the supplied <field>.
+ */
+var _getCollectionSize = function(field){
+    var collectionSize = 0;
+    if(field.options.collectionName && typeof field.options.collectionName === 'string'){
+        var collection = FlexiModels[field.options.collectionName];
+        if(collection && typeof collection.find === "function"){
+            collectionSize = collection.find().count();
+        }
+    }else{
+        if(field.options.collection &&  _.isArray(field.options.collection)){
+            collectionSize = field.options.collection.length;
+        }
+    }
+    return collectionSize;
+};
+
+/**
  * Define a registry hash which maps the 'type' of a fleximodel field to an 'input' element's 'type' attribute value.
  * This value will be used to set the value of the type attribute assigned to the 'input' element generated for the given field.
  * In the case that the 'value' is actually a function, the field spec will be passed in to the function as 'this' and
@@ -91,22 +110,26 @@ ngMeteorForms.templateMapping = {
     'single': function(){
         var field = this;
         var result = 'checkbox';
-        if(field.options && field.options.collection &&  _.isArray(field.options.collection)){
-            if(field.options.collection.length > 1){
+        if(field.options){
+            var collectionSize = _getCollectionSize(field);
+
+            if(collectionSize > 1){
                 result = "radio";
             }
-            if(field.options.collection.length > 5){
+            if(collectionSize > 5){
                 result = "select";
             }
+        }
+        if(field.widgetType){
+            return field.widgetType;
         }
         return result;
     },
     'multi': function(field){
+        var collectionSize = _getCollectionSize(field);
         var result = 'checkbox';
-        if(field.options && _.isArray(field.options)){
-            if(field.options.length > 5){
-                result = "select";
-            }
+        if(collectionSize > 5){
+            result = "select";
         }
         return result;
     }
@@ -348,6 +371,33 @@ var setField = function(scope, attributes){
 var updateScope = function(scope, element, attributes){
     //TODO remove this if we really don't need it ... doesn't appear, at present, to be necessary. ::: setFormName(scope, element);
     setField(scope, attributes);
+
+    var field = scope.field;
+
+    if (field.type && _.contains(['single', 'multi'], field.type)) {
+        if (field.options && field.options.collectionName && typeof field.options.collectionName === 'string') {
+
+            var collection = FlexiModels[field.options.collectionName];
+            //First check if this is a select from a fleximodel
+            if(collection && typeof collection.find === 'function'){
+                if(!(field.options && typeof field.options === 'object')){
+                    field.options = {};
+                };
+                field.options.collection = collection.find().fetch();
+            }else {
+                //Else, see if it is the name of a global collection
+                var collectionName = _.capitalize(_.clone(field.options.collectionName));
+                var meteorCollection = getGlobal(collectionName);
+                if (typeof meteorCollection.find === 'function') {
+                    if(!(field.options && typeof field.options === 'object')){
+                        field.options = {};
+                    };
+                    field.options.collection = collection.find().fetch();
+                }
+            }
+        }
+    }
+
     if(scope.field && scope.field.options){
         scope.options = scope.field.options.collection;
     }
@@ -399,19 +449,7 @@ var getFieldAsContextObject = function(element, attrs){
 
         var attributeString = "";
 
-        if (field.type) {
-            if (field.type._name) {
-                var collectionName = _.capitalize(_.clone(field.type._name));
-                var meteorCollection = getGlobal(collectionName);
-                if (typeof meteorCollection != 'undefined') {
-                    //TODO this is a 'choose from a collection' field or similar.
-                    // type will be either select, select (single or multi), radio button set (single), checkboxes (multi) or avail/selected.
-                }
-            }
-            if (field.type.name) {
-                // This is a type of Integer, String, Number, Boolean, Object (other than collection)
-            }
-        }
+
     }else{
         console.log("unable to find field with id: " + attrs.id);
     }
