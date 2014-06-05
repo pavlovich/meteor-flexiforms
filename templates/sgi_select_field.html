@@ -7,7 +7,7 @@
             <span class="input-group-addon" ng-if="field.prefix">
                 [[field.prefix]]
             </span>
-            <select ng-model="{{modelId}}" name="{{fieldId}}" ng-required="true" class="form-control" ng-options="opt.{{options.label}} group by opt.{{options.group}} for opt in options" title="[[field.message]]">
+            <select ng-model="{{modelId}}" name="{{fieldId}}" ng-required="true" class="form-control" ng-options="opt.{{options.value}} as opt.{{options.label}} group by opt.{{options.group}} for opt in options" title="[[field.message]]">
                 <option value="" ng-if="field.message">[[field.message]]</option>
             </select>
         </div>
