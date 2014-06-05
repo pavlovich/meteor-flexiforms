@@ -76,6 +76,11 @@ var _getCollectionSize = function(field){
         var collection = FlexiModels[field.options.collectionName];
         if(collection && typeof collection.find === "function"){
             collectionSize = collection.find().count();
+        }else{
+            collection = getGlobal(field.options.collectionName);
+            if(collection && typeof collection.find === 'function'){
+                collectionSize = collection.find().count();
+            }
         }
     }else{
         if(field.options.collection &&  _.isArray(field.options.collection)){
@@ -109,7 +114,7 @@ ngMeteorForms.templateMapping = {
     'float': 'number',
     'single': function(){
         var field = this;
-        var result = 'checkbox';
+        var result = 'select';
         if(field.options){
             var collectionSize = _getCollectionSize(field);
 
@@ -388,7 +393,7 @@ var updateScope = function(scope, element, attributes){
                 //Else, see if it is the name of a global collection
                 var collectionName = _.capitalize(_.clone(field.options.collectionName));
                 var meteorCollection = getGlobal(collectionName);
-                if (typeof meteorCollection.find === 'function') {
+                if (meteorCollection && typeof meteorCollection.find === 'function') {
                     if(!(field.options && typeof field.options === 'object')){
                         field.options = {};
                     };
@@ -511,12 +516,19 @@ var sgiAutoformController = function($scope){
         self.model = value;
     }
 
-    $scope.setModel({gender: 'female', name: {firstName: 'Abbey', lastName: 'Pavlovich'}});
+//    $scope.setModel({gender: 'female', name: {firstName: 'Abbey', lastName: 'Pavlovich'}});
+
+    $scope.setModel(FlexiModels['person'].findOne());
+
 
     $scope.save = function(){
         this.preSave();
-        console.log("Built-in Save happening now!")
-        FlexiModels[this.flexiModelname].insert(this.getModel());
+        console.log("Built-in Save happening now!");
+        var baseObj = this.getModel();
+        var baseSpec = FlexiSpecs.findOne({name: this.flexiModelname});
+        var converted = FlexiSpecs.convert(baseObj, baseSpec);
+        //TODO have to validate yet.
+        FlexiModels[this.flexiModelname].insert(converted);
         console.log("Built-in Save complete.")
         this.postSave();
     };
