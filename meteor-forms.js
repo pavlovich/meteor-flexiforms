@@ -518,7 +518,8 @@ var sgiAutoformController = function($scope){
 
 //    $scope.setModel({gender: 'female', name: {firstName: 'Abbey', lastName: 'Pavlovich'}});
 
-    $scope.setModel(FlexiModels['person'].findOne());
+    var myModel = FlexiModels['person'].findOne() || {};
+    $scope.setModel(myModel);
 
 
     $scope.save = function(){
