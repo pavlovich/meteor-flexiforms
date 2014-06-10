@@ -21,6 +21,7 @@ Package.on_use(function (api) {
         'templates/sgi_radio_button_field.html',
         'templates/sgi_checkbox_field.html',
         'templates/sgi_select_field.html',
+        'templates/sgi_select_field.js',
         'templates/sgi_autoform.html',
         'templates/sgi_autoform_field.html',
         'templates/sgi_autoform_field_group.html',
