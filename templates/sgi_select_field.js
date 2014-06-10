@@ -12,7 +12,7 @@ Package.templating.Template['sgiSelectField'].helpers({
         if(options.embedded){
             specString = specString + " track by opt." + options.value;
         }else{
-            specString = "opt." + options.value + " " + specString;
+            specString = "opt." + options.value + " as " + specString;
         }
         return specString;
     },
