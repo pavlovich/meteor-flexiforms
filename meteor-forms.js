@@ -98,6 +98,7 @@ var _getCollectionSize = function(field){
  * for the generated input element.
  */
 ngMeteorForms.templateMapping = {
+    'collection': 'collection',
     'date': 'datepicker',
     'daterange': 'daterange',
     'date': 'date',
@@ -217,7 +218,7 @@ var fieldGetTemplate = function () {
             }
         }
     }
-    if (this.type && ngMeteorForms.templateMapping && this.type in ngMeteorForms.templateMapping) {
+    if (this.type && !_.isArray(this.type) && ngMeteorForms.templateMapping && this.type in ngMeteorForms.templateMapping) {
         var result = ngMeteorForms.templateMapping[this.type];
         if (result) {
             if (typeof result == 'function') {
@@ -225,6 +226,10 @@ var fieldGetTemplate = function () {
             } else {
                 return result;
             }
+        }
+    }else{
+        if(this.type && _.isArray(this.type)){
+            return ngMeteorForms.templateMapping['collection'];
         }
     }
     return this.type ? this.type : null;
@@ -485,6 +490,9 @@ var sgiFieldController = function($scope){
             return false;
         }
     };
+    $scope.switchModel = function(thing, thingie, thunk){
+        $scope.myIndex = thing;
+    }
 };
 
 var sgiFieldPreLink = function preLink(scope, iElement, iAttrs, controller) {
@@ -713,7 +721,21 @@ Package.meteor.Meteor.startup(function(){
         var context = createNonFieldContext(element, attrs);
         context.formTitle = "New User Information";
         return context;
-    }
+    };
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * For the collection field template, customize the 'createContext' function.
+     */
+    var collectionField = getTemplateForKey('sgiCollectionField');
+
+    collectionField.createContext = function(element, attrs){
+        var context = getFieldAsContextObject(element, attrs);
+        context.myEmails = ['hello', 'kitty'];
+        context.myIndex = 0;
+        return context;
+    };
 });
 
 /**

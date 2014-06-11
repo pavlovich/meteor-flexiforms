@@ -15,6 +15,7 @@ Package.on_use(function (api) {
         'templates/sgi_div.html',
         'templates/sgi_form.html',
         'templates/sgi_field.html',
+        'templates/sgi_collection_field.html',
         'templates/sgi_text_field.html',
         'templates/sgi_field_group.html',
         'templates/sgi_radio_field.html',
