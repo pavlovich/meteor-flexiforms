@@ -359,8 +359,8 @@ var expandElement = function(element, attrs) {
 var setFormName = function(receiver, element){
     var formName = null;
     try {
-        form = $(element).closest('form').get(0);
-        formName = form.name;
+        var form = $(element).closest('ng-form').get(0);
+        formName = form.getAttribute('name');
     }catch(e){
         console.log("Unable to find a form enclosing the given element: " + element);
     }
@@ -475,6 +475,13 @@ var getFieldAsContextObject = function(element, attrs){
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var sgiFieldController = function($scope){
+    var setFocusToNewCollectionModelFirstEntryField = function($event){
+        var element = $($event.currentTarget).closest('.sgi-collection-field').find('.sgi-new-model').find('input');
+        setTimeout(function(){
+            element.focus();
+        }, 1);
+    };
+
     $scope.radioFocus = function($event){
         var widget = $event.target;
         $(widget).closest(".radio-group").addClass("focus");
@@ -490,9 +497,15 @@ var sgiFieldController = function($scope){
             return false;
         }
     };
-    $scope.switchModel = function(thing, thingie, thunk){
-        $scope.myIndex = thing;
-    }
+    $scope.switchModel = function(index, $event){
+        $scope.myIndex = index;
+        setFocusToNewCollectionModelFirstEntryField($event);
+    };
+    $scope.addModel = function(collection, $event){
+        collection.push("");
+        $scope.myIndex = collection.length - 1;
+        setFocusToNewCollectionModelFirstEntryField($event);
+    };
 };
 
 var sgiFieldPreLink = function preLink(scope, iElement, iAttrs, controller) {
@@ -525,10 +538,6 @@ var sgiAutoformController = function($scope){
     }
 
 //    $scope.setModel({gender: 'female', name: {firstName: 'Abbey', lastName: 'Pavlovich'}});
-
-    var myModel = FlexiModels['person'].findOne() || {};
-    $scope.setModel(myModel);
-
 
     $scope.save = function(){
         this.preSave();

@@ -1,10 +1,10 @@
 <template name="sgiForm">
     <div ng-controller="{{ngController}}">
-        <form novalidate name="{{name}}" class="{{class}}">
+        <ng-form name="{{name}}" class="{{class}}">
             <div class="form-inline">
                 {{{contents}}}
             </div>
             {{> sgiFormButtons }}
-        </form>
+        </ng-form>
     </div>
 </template>
