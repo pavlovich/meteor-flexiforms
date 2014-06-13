@@ -90,6 +90,32 @@ var _getCollectionSize = function(field){
     return collectionSize;
 };
 
+var _setValueOfPath = function(obj, path, value, overwrite){
+    var pathComponents = path.split('.');
+    _.reduce(pathComponents,
+        function(memo, key){
+            if(this == key){
+                if(memo[key]){
+                    if(overwrite){
+                        memo[key] = value;
+                    }
+                    return memo[key];
+                }
+                memo[key] = value;
+                return value;
+            }else{
+                if(memo[key]){
+                    return memo[key]
+                }else{
+                    memo[key] = {};
+                    return memo[key]
+                }
+            }
+        }, obj, _.last(pathComponents));
+
+    return value;
+};
+
 /**
  * Define a registry hash which maps the 'type' of a fleximodel field to an 'input' element's 'type' attribute value.
  * This value will be used to set the value of the type attribute assigned to the 'input' element generated for the given field.
@@ -172,7 +198,7 @@ ngMeteorForms.errorTypes = {
  */
 Package.ui.UI.registerHelper("sgiAutoformElementTemplate", function () {
     var templateName = '_sgiAutoformField';
-    if(this && this.type){
+    if(this && this.type && !_.isArray(this.type)){
         var flexiSpec = FlexiSpecs.findOne({name: this.type.toString()});
         if(flexiSpec){
             templateName = '_sgiAutoformFieldGroup';
@@ -281,7 +307,7 @@ var getTemplateForKey = function(key){
  * the name of yet another flexispec which, itself, has a field with name 'zipCode'. Since 'zipCode' is the last
  * component of the fieldId, it is assumed that it is a 'primitive' type ('text', 'boolean', 'single', 'multi', etc).
  */
-var getField = function (fieldId) {
+getField = function (fieldId) {
     var typeMap = {};
     $(FlexiSpecs)
         .map(function() {
@@ -384,32 +410,43 @@ var updateScope = function(scope, element, attributes){
 
     var field = scope.field;
 
-    if (field.type && _.contains(['single', 'multi'], field.type)) {
-        if (field.options && field.options.collectionName && typeof field.options.collectionName === 'string') {
+    if(_.isNull(field) || _.isUndefined(field)){
+        // No field associated with a non-data-oriented element (like a DIV). Do nothing to the scope.
+    }else {
 
-            var collection = FlexiModels[field.options.collectionName];
-            //First check if this is a select from a fleximodel
-            if(collection && typeof collection.find === 'function'){
-                if(!(field.options && typeof field.options === 'object')){
-                    field.options = {};
-                };
-                field.options.collection = collection.find().fetch();
-            }else {
-                //Else, see if it is the name of a global collection
-                var collectionName = _.capitalize(_.clone(field.options.collectionName));
-                var meteorCollection = getGlobal(collectionName);
-                if (meteorCollection && typeof meteorCollection.find === 'function') {
-                    if(!(field.options && typeof field.options === 'object')){
+        if(field.type && _.isArray(field.type)){
+            scope.collection = _setValueOfPath(scope, getModelId(attributes.id), [], false);
+        };
+
+        if (field.type && _.contains(['single', 'multi'], field.type)) {
+            if (field.options && field.options.collectionName && typeof field.options.collectionName === 'string') {
+
+                var collection = FlexiModels[field.options.collectionName];
+                //First check if this is a select from a fleximodel
+                if (collection && typeof collection.find === 'function') {
+                    if (!(field.options && typeof field.options === 'object')) {
                         field.options = {};
-                    };
+                    }
+                    ;
                     field.options.collection = collection.find().fetch();
+                } else {
+                    //Else, see if it is the name of a global collection
+                    var collectionName = _.capitalize(_.clone(field.options.collectionName));
+                    var meteorCollection = getGlobal(collectionName);
+                    if (meteorCollection && typeof meteorCollection.find === 'function') {
+                        if (!(field.options && typeof field.options === 'object')) {
+                            field.options = {};
+                        }
+                        ;
+                        field.options.collection = collection.find().fetch();
+                    }
                 }
             }
         }
-    }
 
-    if(scope.field && scope.field.options){
-        scope.options = scope.field.options.collection;
+        if (scope.field && scope.field.options) {
+            scope.options = scope.field.options.collection;
+        }
     }
 };
 
@@ -448,21 +485,27 @@ var createNonFieldContext = function(element, attrs){
  */
 var getFieldAsContextObject = function(element, attrs){
 
-    var field = getField(attrs.id);
+    var modelId = attrs.id;
+    if(modelId == 'model'){
+        modelId = attrs.modelId;
+    }
+    var field = getField(modelId);
     if(field) {
         field = _.clone(field);
         setFormName(field, element);
+        if(attrs.unwrapped && _.isArray(field.type)){
+            field.unwrapped = true;
+            field.type = field.type[0];
+        }
         field.modelId = getModelId(attrs.id);
-        field.id = attrs.id;
+        field.id = modelId;
         field.fieldId = attrs.id.replace(/\./g,'');
         field.inline = attrs.inline;
-        field.showLabel = field.inline ? false : true;
-
+        field.showLabel = (field.inline || field.unwrapped) ? false : true;
         var attributeString = "";
 
-
     }else{
-        console.log("unable to find field with id: " + attrs.id);
+        console.log("unable to find field with id: " + modelId);
     }
 
     return field;
@@ -498,18 +541,35 @@ var sgiFieldController = function($scope){
         }
     };
     $scope.switchModel = function(index, $event){
+        var formScope = angular.element($($event.currentTarget).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
         $scope.myIndex = index;
-        setFocusToNewCollectionModelFirstEntryField($event);
+        formScope.model = $scope.collection[index];
+      // setFocusToNewCollectionModelFirstEntryField($event);
     };
-    $scope.addModel = function(collection, $event){
-        collection.push("");
-        $scope.myIndex = collection.length - 1;
-        setFocusToNewCollectionModelFirstEntryField($event);
+    $scope.addModel = function(collectionx, $event){
+        var formScope = angular.element($($event.currentTarget).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
+        var newSpec = $scope.field.type;
+        if(_.isArray(newSpec)){
+            newSpec = newSpec[0];
+        };
+
+        var newObj = FlexiSpecs.create(newSpec);
+
+//        if(!(collection && _.isArray(collection))){
+//            collection = _setValueOfPath($scope, $scope.modelId, []);
+//        }
+
+        $scope.collection.push(newObj);
+
+        $scope.myIndex = $scope.collection.length - 1;
+        formScope.model = newObj;
+        //setFocusToNewCollectionModelFirstEntryField($event);
     };
 };
 
 var sgiFieldPreLink = function preLink(scope, iElement, iAttrs, controller) {
     scope.xid = iAttrs.id;
+    scope.modelId = getModelId(iAttrs.id);
     Deps.autorun(function(){
         if(!scope.$$phase) {
             scope.$apply(function () {
@@ -537,7 +597,7 @@ var sgiAutoformController = function($scope){
         self.model = value;
     }
 
-//    $scope.setModel({gender: 'female', name: {firstName: 'Abbey', lastName: 'Pavlovich'}});
+    // $scope.setModel({gender: 'female', name: {firstName: 'Abbey', lastName: 'Pavlovich'}});
 
     $scope.save = function(){
         this.preSave();
@@ -561,6 +621,10 @@ var sgiAutoformController = function($scope){
 var sgiAutoformPreLink = function preLink(scope, iElement, iAttrs, controller){
     Deps.autorun(function(){
         scope.flexiModelname = iAttrs['model'];
+        scope.unwrapped = iAttrs['unwrapped'];
+        if(scope.unwrapped){
+            scope.model = null;
+        }
     })
 };
 
@@ -591,6 +655,7 @@ ngMeteorForms
     .directive('sgiAutoform', ['$compile', function ($compile) {
         return {
             restrict: 'E',
+            scope: true,
             controller: ['$scope', sgiAutoformController],
             compile: sgiAutoformCompile
         }
@@ -741,7 +806,6 @@ Package.meteor.Meteor.startup(function(){
 
     collectionField.createContext = function(element, attrs){
         var context = getFieldAsContextObject(element, attrs);
-        context.myEmails = ['hello', 'kitty'];
         context.myIndex = 0;
         return context;
     };

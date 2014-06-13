@@ -3,15 +3,20 @@
     <sgi-field-group class="sgi-collection-field" name="[[field.label]]">
         <div>
             <div class="sgi-collection-add-button">
-                <button ng-click="addModel({{modelId}}, $event)">+</button>
+                <button ng-click="addModel(collection, $event)">+</button>
             </div>
-            <div ng-repeat="item in {{modelId}}">
+            <div ng-repeat="item in collection">
                 <div ng-click="switchModel($index, $event)">[[item]]</div>
             </div>
         </div>
         <hr>
         <div class="sgi-new-model">
+            <div ng-show="myIndex != null">
+                <sgi-autoform class="sgi-collection-field-new-model" field="{{id}}" unwrapped="true"></sgi-autoform>
+            </div>
+            <!--
             <input type="text" id="hello" ng-show="myIndex != null" ng-model="{{modelId}}[myIndex]">
+            -->
             <div ng-show="myIndex == null">Click an item in the list above to edit</div>
         </div>
 

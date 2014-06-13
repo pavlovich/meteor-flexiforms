@@ -4,7 +4,9 @@
             <div class="form-inline">
                 {{{contents}}}
             </div>
-            {{> sgiFormButtons }}
+            {{#if mainform}}
+                {{> sgiFormButtons }}
+            {{/if}}
         </ng-form>
     </div>
 </template>

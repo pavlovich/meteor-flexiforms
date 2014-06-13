@@ -10,7 +10,7 @@
             <span class="input-group-addon" ng-if="field.prefix">
                 [[field.prefix]]
             </span>
-            <input type="[[field.type]]" ng-model="{{modelId}}" class="form-control" name="{{fieldId}}" placeholder="[[field.placeholder]]" ng-maxlength="[[field.validation.max.value]]" ng-minlength="[[field.validation.min.value]]" ng-pattern="[[field.validation.pattern.value]]" ng-required="[[field.validation.required.value]]" min="{{field.min}}" max="{{field.max}}" title="[[field.message]]" >
+            <input type="{{type}}" ng-model="{{modelId}}" class="form-control" name="{{fieldId}}" placeholder="[[field.placeholder]]" ng-maxlength="[[field.validation.max.value]]" ng-minlength="[[field.validation.min.value]]" ng-pattern="[[field.validation.pattern.value]]" ng-required="[[field.validation.required.value]]" min="{{field.min}}" max="{{field.max}}" title="[[field.message]]" >
             <span class="input-group-addon" ng-if="field.suffix">
                 [[field.suffix]]
             </span>
