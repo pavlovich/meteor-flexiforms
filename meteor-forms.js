@@ -398,7 +398,13 @@ var setFormName = function(receiver, element){
  * path through the flexispecs indicated by the value of the supplied 'id' attribute.
  */
 var setField = function(scope, attributes){
-    scope.field = getField(attributes.id);
+    var modelId = (attributes.id == 'model') ? attributes.modelId : attributes.id;
+    var theField = getField(modelId);
+    if(_.isArray(theField.type) && attributes.unwrapped){
+        theField = _.clone(theField);
+        theField.type = theField.type[0];
+    }
+    scope.field = theField;
 };
 
 /**
@@ -415,7 +421,17 @@ var updateScope = function(scope, element, attributes){
     }else {
 
         if(field.type && _.isArray(field.type)){
-            scope.collection = _setValueOfPath(scope, getModelId(attributes.id), [], false);
+           // var formScope = angular.element($(element).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
+            if(FlexiSpecs.findOne({name: field.type[0]})){
+                scope.collection = _setValueOfPath(scope, getModelId(attributes.id), [], false);
+                scope.myIndex = null;
+                scope.singleMode = false;
+            }else{
+               // formScope.model = _setValueOfPath(scope, getModelId(attributes.id), [], false);
+                scope.collection = _setValueOfPath(scope, getModelId(attributes.id), [], false);
+                scope.myIndex = null;
+                scope.singleMode = true;
+            }
         };
 
         if (field.type && _.contains(['single', 'multi'], field.type)) {
@@ -497,7 +513,11 @@ var getFieldAsContextObject = function(element, attrs){
             field.unwrapped = true;
             field.type = field.type[0];
         }
-        field.modelId = getModelId(attrs.id);
+        if(field.unwrapped && field.type && !FlexiSpecs.findOne({name: field.type})){
+            field.modelId = "model[myIndex]"
+        }else{
+            field.modelId = getModelId(attrs.id);
+        }
         field.id = modelId;
         field.fieldId = attrs.id.replace(/\./g,'');
         field.inline = attrs.inline;
@@ -519,7 +539,7 @@ var getFieldAsContextObject = function(element, attrs){
 
 var sgiFieldController = function($scope){
     var setFocusToNewCollectionModelFirstEntryField = function($event){
-        var element = $($event.currentTarget).closest('.sgi-collection-field').find('.sgi-new-model').find('input');
+        var element = $($event.currentTarget).closest('.sgi-collection-field').find('.sgi-new-model').find('input:not([type=hidden]):first');
         setTimeout(function(){
             element.focus();
         }, 1);
@@ -543,8 +563,10 @@ var sgiFieldController = function($scope){
     $scope.switchModel = function(index, $event){
         var formScope = angular.element($($event.currentTarget).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
         $scope.myIndex = index;
-        formScope.model = $scope.collection[index];
-      // setFocusToNewCollectionModelFirstEntryField($event);
+        if(!$scope.singleMode){
+            formScope.model = $scope.collection[index];
+        }
+        setFocusToNewCollectionModelFirstEntryField($event);
     };
     $scope.addModel = function(collectionx, $event){
         var formScope = angular.element($($event.currentTarget).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
@@ -555,15 +577,19 @@ var sgiFieldController = function($scope){
 
         var newObj = FlexiSpecs.create(newSpec);
 
-//        if(!(collection && _.isArray(collection))){
-//            collection = _setValueOfPath($scope, $scope.modelId, []);
-//        }
+        if(!$scope.singleMode) {
+            $scope.collection.push(newObj);
+            $scope.myIndex = $scope.collection.length - 1;
+            formScope.model = newObj;
+        }else{
+            if($scope.collection != formScope.model){
+                formScope.model = $scope.collection;
+            }
+            formScope.model.push(newObj);
+            $scope.myIndex = formScope.model.length - 1;
+        }
 
-        $scope.collection.push(newObj);
-
-        $scope.myIndex = $scope.collection.length - 1;
-        formScope.model = newObj;
-        //setFocusToNewCollectionModelFirstEntryField($event);
+        setFocusToNewCollectionModelFirstEntryField($event);
     };
 };
 
