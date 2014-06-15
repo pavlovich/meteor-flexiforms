@@ -91,6 +91,7 @@ var _getCollectionSize = function(field){
 };
 
 var _setValueOfPath = function(obj, path, value, overwrite){
+    var result = value;
     var pathComponents = path.split('.');
     _.reduce(pathComponents,
         function(memo, key){
@@ -99,7 +100,8 @@ var _setValueOfPath = function(obj, path, value, overwrite){
                     if(overwrite){
                         memo[key] = value;
                     }
-                    return memo[key];
+                    result = memo[key];
+                    return result;
                 }
                 memo[key] = value;
                 return value;
@@ -113,7 +115,7 @@ var _setValueOfPath = function(obj, path, value, overwrite){
             }
         }, obj, _.last(pathComponents));
 
-    return value;
+    return result;
 };
 
 /**
@@ -421,14 +423,15 @@ var updateScope = function(scope, element, attributes){
     }else {
 
         if(field.type && _.isArray(field.type)){
-           // var formScope = angular.element($(element).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
             if(FlexiSpecs.findOne({name: field.type[0]})){
                 scope.collection = _setValueOfPath(scope, getModelId(attributes.id), [], false);
                 scope.myIndex = null;
                 scope.singleMode = false;
             }else{
-               // formScope.model = _setValueOfPath(scope, getModelId(attributes.id), [], false);
-                scope.collection = _setValueOfPath(scope, getModelId(attributes.id), [], false);
+              //  var formScope = angular.element($(element).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
+                var theCollection = _setValueOfPath(scope, getModelId(attributes.id), [], false);
+              //  formScope.model = theCollection;
+                scope.collection = theCollection;
                 scope.myIndex = null;
                 scope.singleMode = true;
             }
@@ -616,6 +619,20 @@ var sgiFieldCompile = function compile(element, attrs) {
 
 var sgiAutoformController = function($scope){
     var self = $scope;
+    this.scope = $scope
+    if(window.xxxx == null){
+        window.xxxx = {};
+    }
+    var index = 1;
+    var doContinue = true;
+    while(doContinue) {
+        if (window.xxxx[index]) {
+            index = index + 1
+        }else{
+            doContinue = false
+        }
+    }
+    window.xxxx[index] = this;
     $scope.getModel = function(){
         return this.model;
     };
@@ -645,13 +662,15 @@ var sgiAutoformController = function($scope){
 };
 
 var sgiAutoformPreLink = function preLink(scope, iElement, iAttrs, controller){
-    Deps.autorun(function(){
+  //  Deps.autorun(function(){
         scope.flexiModelname = iAttrs['model'];
         scope.unwrapped = iAttrs['unwrapped'];
         if(scope.unwrapped){
-            scope.model = null;
+            if(scope.singleMode){
+                scope.model = scope.collection;
+            }
         }
-    })
+  //  })
 };
 
 var sgiAutoformCompile = function compile(element, attrs){
