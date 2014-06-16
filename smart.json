@@ -11,7 +11,10 @@
             "git": "git://github.com/pavlovich/meteor-fleximodel.git",
             "branch": "master"
         },
-        "ngMeteor": {},
+        "ngMeteor": {
+            "git": "git://github.com/loneleeandroo/ngMeteor.git",
+            "branch": "master"
+        },
         "meteor-ng-datepicker": {
             "git": "git://github.com/pavlovich/meteor-ng-datepicker.git",
             "branch": "master"
