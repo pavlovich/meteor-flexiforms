@@ -55,6 +55,28 @@ ngMeteorFleximodel =
  */
 ngMeteorForms = angular.module('ngMeteorForms', ['ngMeteorFleximodel']);
 
+/** Utility method for use with the Blaze rendering engine.
+ * Render the named template as HTML using the 'context' param as the source for variable substitution.
+ */
+ngMeteorForms.renderTemplateInContext = function(templateOrName, context) {
+    var template = (typeof templateOrName === 'string') ? Template[templateOrName] : templateOrName;
+    var div = document.createElement('div');
+    var component = UI.renderWithData(template, context);
+    UI.insert(component, div);
+    return div.innerHTML;
+};
+
+/** Utility method for use with the Blaze rendering engine.
+ * Render the named template as HTML using the 'context' param as the source for variable substitution.
+ */
+ngMeteorForms.renderTemplateInContext = function(templateOrName, context) {
+    var template = (typeof templateOrName === 'string') ? Template[templateOrName] : templateOrName;
+    var div = document.createElement('div');
+    var component = UI.renderWithData(template, context);
+    UI.insert(component, div);
+    return div.innerHTML;
+};
+
 /**
  * Provide an initially empty hash to be used by framework users to register their own templates to be used in place
  * of the framework-provided ones. This 'substitution' of user-provided templates for 'stock' templates allows users
@@ -376,7 +398,7 @@ var getSgiElementTemplate = function(element, attrs){
 var expandElement = function(element, attrs) {
     var template = getSgiElementTemplate(element, attrs);
     var context = template.createContext(element, attrs);
-    var result = ngMeteor.renderTemplateInContext(template, context);
+    var result = ngMeteorForms.renderTemplateInContext(template, context);
     element.replaceWith(result);
 };
 
@@ -428,9 +450,9 @@ var updateScope = function(scope, element, attributes){
                 scope.myIndex = null;
                 scope.singleMode = false;
             }else{
-              //  var formScope = angular.element($(element).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
+                //  var formScope = angular.element($(element).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
                 var theCollection = _setValueOfPath(scope, getModelId(attributes.id), [], false);
-              //  formScope.model = theCollection;
+                //  formScope.model = theCollection;
                 scope.collection = theCollection;
                 scope.myIndex = null;
                 scope.singleMode = true;
@@ -619,20 +641,20 @@ var sgiFieldCompile = function compile(element, attrs) {
 
 var sgiAutoformController = function($scope){
     var self = $scope;
-    this.scope = $scope
-    if(window.xxxx == null){
-        window.xxxx = {};
-    }
-    var index = 1;
-    var doContinue = true;
-    while(doContinue) {
-        if (window.xxxx[index]) {
-            index = index + 1
-        }else{
-            doContinue = false
-        }
-    }
-    window.xxxx[index] = this;
+//    this.scope = $scope
+//    if(window.xxxx == null){
+//        window.xxxx = {};
+//    }
+//    var index = 1;
+//    var doContinue = true;
+//    while(doContinue) {
+//        if (window.xxxx[index]) {
+//            index = index + 1
+//        }else{
+//            doContinue = false
+//        }
+//    }
+//    window.xxxx[index] = this;
     $scope.getModel = function(){
         return this.model;
     };
@@ -662,15 +684,15 @@ var sgiAutoformController = function($scope){
 };
 
 var sgiAutoformPreLink = function preLink(scope, iElement, iAttrs, controller){
-  //  Deps.autorun(function(){
-        scope.flexiModelname = iAttrs['model'];
-        scope.unwrapped = iAttrs['unwrapped'];
-        if(scope.unwrapped){
-            if(scope.singleMode){
-                scope.model = scope.collection;
-            }
+    //  Deps.autorun(function(){
+    scope.flexiModelname = iAttrs['model'];
+    scope.unwrapped = iAttrs['unwrapped'];
+    if(scope.unwrapped){
+        if(scope.singleMode){
+            scope.model = scope.collection;
         }
-  //  })
+    }
+    //  })
 };
 
 var sgiAutoformCompile = function compile(element, attrs){
@@ -860,4 +882,6 @@ Package.meteor.Meteor.startup(function(){
  * Replace the default ngMeteor flexistrap configuration so that the ngMeteor module is NOT bootstrapped into the
  * main document and so that the ngMeteorForms module is bootstrapped into any div with the class 'meteor-form' for all routes.
  */
-ngMeteor.addFlexistrap('div.meteor-form', 'ngMeteorForms', '*', true);
+//ngMeteor.addFlexistrap('div.meteor-form', 'ngMeteorForms', '*', true);
+
+ngMeteor.dependencies.push('ngMeteorForms');
