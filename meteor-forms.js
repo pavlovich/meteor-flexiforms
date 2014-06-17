@@ -884,4 +884,4 @@ Package.meteor.Meteor.startup(function(){
  */
 //ngMeteor.addFlexistrap('div.meteor-form', 'ngMeteorForms', '*', true);
 
-ngMeteor.dependencies.push('ngMeteorForms');
+ngMeteor.requires.push('ngMeteorForms');
