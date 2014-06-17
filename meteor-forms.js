@@ -638,7 +638,36 @@ var sgiAutoformController = function($scope){
     };
     $scope.setModel = function(value){
         self.model = value;
-    }
+    };
+    $scope.getDisplayString = function(myItem){
+        if(myItem && typeof myItem.toSgiDisplayString == 'function'){
+            return myItem.toSgiDisplayString();
+        }
+        var result = _.reduce(myItem, function(memo, value, attribute){
+            if(value){
+                if(!_.startsWith(attribute, '$') && !(_.startsWith(attribute, '_'))) {
+                    var addOnString = "";
+                    if(typeof value.toSgiDisplayString == 'function'){
+                        addOnString = value.toSgiDisplayString();
+                    }else {
+                        if (typeof value == 'object') {
+                            addOnString = this.getDisplayString(value);
+                        } else {
+                            addOnString = value;
+                        }
+                    }
+                    if(addOnString && !_.isEmpty(addOnString)){
+                        if(memo && !_.isEmpty(memo)){
+                            return memo + ", " + addOnString;
+                        }
+                        return addOnString;
+                    }
+                }
+            }
+            return memo;
+        }, "", this);
+        return result;
+    };
 
     // $scope.setModel({gender: 'female', name: {firstName: 'Abbey', lastName: 'Pavlovich'}});
 
@@ -753,13 +782,19 @@ Package.meteor.Meteor.startup(function(){
      * providing them with a createContext and a sgiTemplate function.
      */
     _.each(otherSgiTemplateNames, function(directiveName){
-        var directiveDefinition = {
+        var directiveDefinitionWithScope = {
             restrict: 'E',
             scope: true,
             compile: standardCompile
         };
 
-        ngMeteorForms.directive(directiveName, function(){return directiveDefinition});
+        var directiveDefinition = {
+            restrict: 'E',
+            compile: standardCompile
+        };
+
+        var directiveDefinitionHolder = (directiveName == 'sgiAutoform') ? directiveDefinitionWithScope : directiveDefinition;
+        ngMeteorForms.directive(directiveName, function(){return directiveDefinitionHolder});
 
         var template = getTemplateForKey(directiveName);
         template.createContext = createNonFieldContext;

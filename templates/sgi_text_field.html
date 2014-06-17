@@ -15,7 +15,7 @@
                 [[field.suffix]]
             </span>
         </div>
-        <div class="error" ng-if="addErrorMessage('required')"><span class="error" ng-show="{{formName}}.{{fieldId}}.$dirty && {{formName}}.{{fieldId}}.$error.required">[[field.validation.required.message || 'Please enter a value!']]</span></div>
+        <div class="error" ng-if="field.validation.required.value"><span class="error" ng-show="{{formName}}.{{fieldId}}.$dirty && {{formName}}.{{fieldId}}.$error.required">[[field.validation.required.message || 'Please enter a value!']]</span></div>
         <div class="error" ng-if="field.validation.min.value"><span class="error" ng-show="{{formName}}.{{fieldId}}.$dirty && {{formName}}.{{fieldId}}.$error.minlength">[[field.validation.min.message || 'Too short!']]</span></div>
         <div class="error" ng-if="field.validation.max.value"><span class="error" ng-show="{{formName}}.{{fieldId}}.$dirty && {{formName}}.{{fieldId}}.$error.maxlength">[[field.validation.max.message || 'Too long!']]</span></div>
         <div class="error" ng-if="field.validation.pattern.value"><span class="error" ng-show="{{formName}}.{{fieldId}}.$error.pattern">[[field.validation.pattern.message || 'Wrong pattern!']]</span></div>
