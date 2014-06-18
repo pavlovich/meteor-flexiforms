@@ -864,7 +864,8 @@ Package.meteor.Meteor.startup(function(){
 
     sgiAutoform.createContext = function(element, attrs){
         var context = createNonFieldContext(element, attrs);
-        context.formTitle = "New " + attrs['model'] + " Information";
+        var modelNameString = attrs['model'] ? (_.capitalize(attrs['model']) + " ") : "";
+        context.formTitle = "New " + modelNameString + "Information";
         return context;
     };
 
