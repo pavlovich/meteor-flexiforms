@@ -630,30 +630,31 @@ var sgiAutoformController = function($scope){
         var result = "";
         if(myItem && typeof myItem.toSgiDisplayString == 'function'){
             result = myItem.toSgiDisplayString();
-        }
-        result = _.reduce(myItem, function(memo, value, attribute){
-            if(value){
-                if(!_.startsWith(attribute, '$') && !(_.startsWith(attribute, '_'))) {
-                    var addOnString = "";
-                    if(typeof value.toSgiDisplayString == 'function'){
-                        addOnString = value.toSgiDisplayString();
-                    }else {
-                        if (typeof value == 'object') {
-                            addOnString = this.getDisplayString(value, true);
+        }else {
+            result = _.reduce(myItem, function (memo, value, attribute) {
+                if (value) {
+                    if (!_.startsWith(attribute, '$') && !(_.startsWith(attribute, '_'))) {
+                        var addOnString = "";
+                        if (typeof value.toSgiDisplayString == 'function') {
+                            addOnString = value.toSgiDisplayString();
                         } else {
-                            addOnString = value;
+                            if (typeof value == 'object') {
+                                addOnString = this.getDisplayString(value, true);
+                            } else {
+                                addOnString = value;
+                            }
                         }
-                    }
-                    if(addOnString && !_.isEmpty(addOnString)){
-                        if(memo && !_.isEmpty(memo)){
-                            return memo + ", " + addOnString;
+                        if (addOnString && !_.isEmpty(addOnString)) {
+                            if (memo && !_.isEmpty(memo)) {
+                                return memo + ", " + addOnString;
+                            }
+                            return addOnString;
                         }
-                        return addOnString;
                     }
                 }
-            }
-            return memo;
-        }, "", this);
+                return memo;
+            }, "", this);
+        }
         if(internal || (result && !_.isEmpty(result))){
             return result;
         }
