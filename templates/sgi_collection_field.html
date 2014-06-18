@@ -6,7 +6,7 @@
                 <button ng-click="addModel(collection, $event)">+</button>
             </div>
             <div ng-repeat="item in collection">
-                <div ng-click="switchModel($index, $event)">[[this.getDisplayString(item)]]</div>
+                <div class="collection-selection-row" ng-click="switchModel($index, $event)">[[this.getDisplayString(item)]]</div>
             </div>
         </div>
         <hr>
