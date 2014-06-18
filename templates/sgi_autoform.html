@@ -1,23 +1,25 @@
 <template name="sgiAutoform">
     <div>
-        <sgi-form name="{{getFormName getElement}}" novalidate="" mainform="{{model}}" class="{{getFormClass getElement}}" ng-controller="{{getControllerName getElement}}" >
-            <sgi-div class="meteor-form-fields">
-                <sgi-div class="copy-width narrow">
-                    {{#if model}}
-                        <sgi-field-group name="{{formTitle}}">
-                                <input type="hidden" name="model" value="{{model}}"/>
-                                {{#each getModelFields model }}
-                                    {{> sgiAutoformElementTemplate }}
-                                {{/each}}
-                        </sgi-field-group>
-                    {{else}}
-                        <input type="hidden" name="field" value="{{field}}"/>
-                        {{#each getFieldFields field unwrapped }}
-                            {{> sgiAutoformElementTemplate }}
-                        {{/each}}
-                    {{/if}}
+        <div class="sgi-auto-form">
+            <sgi-form name="{{getFormName getElement}}" novalidate="" mainform="{{model}}" class="{{getFormClass getElement}}" ng-controller="{{getControllerName getElement}}" >
+                <sgi-div class="meteor-form-fields">
+                    <sgi-div class="copy-width narrow">
+                        {{#if model}}
+                            <sgi-field-group name="{{formTitle}}">
+                                    <input type="hidden" name="model" value="{{model}}"/>
+                                    {{#each getModelFields model }}
+                                        {{> sgiAutoformElementTemplate }}
+                                    {{/each}}
+                            </sgi-field-group>
+                        {{else}}
+                            <input type="hidden" name="field" value="{{field}}"/>
+                            {{#each getFieldFields field unwrapped }}
+                                {{> sgiAutoformElementTemplate }}
+                            {{/each}}
+                        {{/if}}
+                    </sgi-div>
                 </sgi-div>
-            </sgi-div>
-        </sgi-form>
+            </sgi-form>
+        </div>
     </div>
 </template>

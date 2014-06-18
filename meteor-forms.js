@@ -550,7 +550,11 @@ var sgiFieldController = function($scope){
 
     $scope.isSelectedRow = function(index){
         return index == this.myIndex;
-    }
+    };
+
+    $scope.hasAvailableCollection = function(aCollection){
+        return aCollection && !_.isEmpty(aCollection);
+    };
 
     $scope.radioFocus = function($event){
         var widget = $event.target;
