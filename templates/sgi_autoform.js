@@ -67,7 +67,7 @@ var _getModelFields = function(modelName){
     var fields = [];
     _.each(fieldsObject, function (fieldSpec, fieldName) {
         if(fieldsObject.hasOwnProperty(fieldName)) {
-            var fieldModel = _.clone(fieldSpec);
+            var fieldModel = owl.deepCopy(fieldSpec);
             fieldModel.base = modelName + "." + fieldName;
             fieldModel.field = fieldSpec;
             fieldModel.parentField = type;
@@ -91,7 +91,7 @@ Package.templating.Template['sgiAutoform'].helpers({
                 var parentFieldName = fieldName.split(".").slice(0, -1).join("");
                 var parentField = getField(parentFieldName);
                 var origField = getField(fieldName);
-                var theField = _.clone(origField);
+                var theField = owl.deepCopy(origField);
                 if(unwrapped && _.isArray(theField.type)){
                     theField.type = theField.type[0];
                     theField.unwrapped = true;

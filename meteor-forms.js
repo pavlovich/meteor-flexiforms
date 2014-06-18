@@ -403,7 +403,7 @@ var setField = function(scope, attributes){
     var modelId = (attributes.id == 'model') ? attributes.modelId : attributes.id;
     var theField = getField(modelId);
     if(_.isArray(theField.type) && attributes.unwrapped){
-        theField = _.clone(theField);
+        theField = owl.deepCopy(theField);
         theField.type = theField.type[0];
     }
     scope.field = theField;
@@ -450,7 +450,7 @@ var updateScope = function(scope, element, attributes){
                     field.options.collection = collection.find().fetch();
                 } else {
                     //Else, see if it is the name of a global collection
-                    var collectionName = _.capitalize(_.clone(field.options.collectionName));
+                    var collectionName = _.capitalize(owl.deepCopy(field.options.collectionName));
                     var meteorCollection = getGlobal(collectionName);
                     if (meteorCollection && typeof meteorCollection.find === 'function') {
                         if (!(field.options && typeof field.options === 'object')) {
@@ -490,7 +490,7 @@ var getGlobal = function(globalName){
  * element.
  */
 var createNonFieldContext = function(element, attrs){
-    var context = _.clone(attrs);
+    var context = owl.deepCopy(attrs);
     context.contents = element.context.innerHTML;
     return context;
 };
@@ -510,7 +510,7 @@ var getFieldAsContextObject = function(element, attrs){
     }
     var field = getField(modelId);
     if(field) {
-        field = _.clone(field);
+        field = owl.deepCopy(field);
         setFormName(field, element);
         if(attrs.unwrapped && _.isArray(field.type)){
             field.unwrapped = true;
@@ -675,6 +675,10 @@ var sgiAutoformController = function($scope){
     $scope.postSave = function(){
         console.log('postSave from internal controller');
     };
+
+    if(!$scope.model) {
+        $scope.setModel({})
+    }
 };
 
 var sgiAutoformPreLink = function preLink(scope, iElement, iAttrs, controller){
@@ -848,7 +852,7 @@ Package.meteor.Meteor.startup(function(){
     var radioButton = getTemplateForKey('sgiRadioButton');
 
     radioButton.createContext = function(element, attrs){
-        return _.clone(attrs);
+        return owl.deepCopy(attrs);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////

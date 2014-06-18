@@ -10,7 +10,7 @@ Package.templating.Template['_sgiAutoformFieldGroup'].helpers({
         var fields = [];
         _.each(fieldsObject, function (value, index) {
             if(fieldsObject.hasOwnProperty(index)) {
-                var obj = _.clone(value);
+                var obj = owl.deepCopy(value);
                 obj.base = self.base + "." + index;
                 obj.field = value;
                 obj.inline = self.inline ? true : false;
