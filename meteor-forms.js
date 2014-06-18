@@ -619,20 +619,7 @@ var sgiFieldCompile = function compile(element, attrs) {
 
 var sgiAutoformController = function($scope){
     var self = $scope;
-    this.scope = $scope
-    if(window.xxxx == null){
-        window.xxxx = {};
-    }
-    var index = 1;
-    var doContinue = true;
-    while(doContinue) {
-        if (window.xxxx[index]) {
-            index = index + 1
-        }else{
-            doContinue = false
-        }
-    }
-    window.xxxx[index] = this;
+
     $scope.getModel = function(){
         return this.model;
     };
