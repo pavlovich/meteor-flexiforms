@@ -626,11 +626,12 @@ var sgiAutoformController = function($scope){
     $scope.setModel = function(value){
         self.model = value;
     };
-    $scope.getDisplayString = function(myItem){
+    $scope.getDisplayString = function(myItem, internal){
+        var result = "";
         if(myItem && typeof myItem.toSgiDisplayString == 'function'){
-            return myItem.toSgiDisplayString();
+            result = myItem.toSgiDisplayString();
         }
-        var result = _.reduce(myItem, function(memo, value, attribute){
+        result = _.reduce(myItem, function(memo, value, attribute){
             if(value){
                 if(!_.startsWith(attribute, '$') && !(_.startsWith(attribute, '_'))) {
                     var addOnString = "";
@@ -638,7 +639,7 @@ var sgiAutoformController = function($scope){
                         addOnString = value.toSgiDisplayString();
                     }else {
                         if (typeof value == 'object') {
-                            addOnString = this.getDisplayString(value);
+                            addOnString = this.getDisplayString(value, true);
                         } else {
                             addOnString = value;
                         }
@@ -653,7 +654,7 @@ var sgiAutoformController = function($scope){
             }
             return memo;
         }, "", this);
-        if(result && !_.isEmpty(result)){
+        if(internal || (result && !_.isEmpty(result))){
             return result;
         }
         return "New entry! Please select to edit.";
