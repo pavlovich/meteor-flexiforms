@@ -653,7 +653,7 @@ var sgiAutoformController = function($scope){
             }
             return memo;
         }, "", this);
-        if(result && !_.empty(result)){
+        if(result && !_.isEmpty(result)){
             return result;
         }
         return "New entry! Please select to edit.";
