@@ -548,6 +548,10 @@ var sgiFieldController = function($scope){
         }, 1);
     };
 
+    $scope.isSelectedRow = function(index){
+        return index == this.myIndex;
+    }
+
     $scope.radioFocus = function($event){
         var widget = $event.target;
         $(widget).closest(".radio-group").addClass("focus");

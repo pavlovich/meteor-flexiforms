@@ -5,8 +5,10 @@
             <div class="sgi-collection-add-button">
                 <button ng-click="addModel(collection, $event)">+</button>
             </div>
-            <div ng-repeat="item in collection">
-                <div class="collection-selection-row" ng-click="switchModel($index, $event)">[[this.getDisplayString(item)]]</div>
+            <div class="sgi-collection-selection-list">
+                <div class="collection-selection-row" ng-repeat="item in collection">
+                    <div ng-class="{selected: isSelectedRow($index)}" ng-click="switchModel($index, $event)">[[this.getDisplayString(item)]]</div>
+                </div>
             </div>
         </div>
         <hr>
