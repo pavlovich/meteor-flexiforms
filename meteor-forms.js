@@ -653,7 +653,10 @@ var sgiAutoformController = function($scope){
             }
             return memo;
         }, "", this);
-        return result;
+        if(result && !_.empty(result)){
+            return result;
+        }
+        return "New entry! Please select to edit.";
     };
 
     // $scope.setModel({gender: 'female', name: {firstName: 'Abbey', lastName: 'Pavlovich'}});
