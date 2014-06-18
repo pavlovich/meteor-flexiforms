@@ -6,7 +6,6 @@
 	"git": "https://github.com/pavlovich/meteor-forms.git",
 	"version": "0.0.2",
 	"packages": {
-        "less": {},
         "underscore-string-latest": {},
         "meteor-fleximodel": {
             "git": "git://github.com/pavlovich/meteor-fleximodel.git",
