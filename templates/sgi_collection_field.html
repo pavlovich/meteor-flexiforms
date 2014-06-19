@@ -1,7 +1,7 @@
 <template name="sgiCollectionField">
     <div>
         <sgi-field-group class="sgi-collection-field" name="[[field.label]]">
-            <div ng-model="collection" sgi-max-count="{{validation.maxCount.value}} sgi-min-count="{{validation.minCount.value}}" >
+            <div ng-model="collection" sgi-max-count="{{validation.maxCount.value}}" sgi-min-count="{{validation.minCount.value}}" >
             <div class="sgi-collection-add-button">
                 <button ng-click="addModel(collection, $event)">+</button>
             </div>
