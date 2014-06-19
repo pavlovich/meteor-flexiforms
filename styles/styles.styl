@@ -185,6 +185,8 @@ div.sgi-auto-form {
 
     .collection-selection-row {
       cursor: pointer !important;
+      willdth: 100%;
+      dikksplay: inline-table;
 
       div {
         padding: 2px;
@@ -196,7 +198,19 @@ div.sgi-auto-form {
 
         &.invalid {
           border: 5px solid red !important;
-          padding: 5px;
+          padding: 2px;
+        }
+
+        &.sgi-collection-selection-item-remove-button{
+          margin: 2px;
+          font-weight: bold;
+          color: darkred;
+          border: 2px solid darkred;
+          position: relative;
+          margin-top: -29px;
+          float: right;
+          margin-right: -5px;
+          padding: 4px;
         }
       }
 

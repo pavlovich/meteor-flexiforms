@@ -5,14 +5,14 @@
 /**
  * Given an <element>, return the value of the requested <attributName>.
  */
-var getAttributeFromElement = function(element, attributeName){
+getAttributeFromElement = function(element, attributeName){
     if(element && element.context && element.context.getAttribute(attributeName)){
         return element.context.getAttribute(attributeName);
     }
     return null;
 };
 
-var _getModelFieldBaseName = function(result){
+_getModelFieldBaseName = function(result){
     return 'field' + _.reduce(result.split("."), function(memo, q){return memo + _.capitalize(q)}, "")
 }
 

@@ -541,6 +541,9 @@ var getFieldAsContextObject = function(element, attrs){
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var sgiFieldController = function($scope){
+
+    var self = $scope;
+
     var setFocusToNewCollectionModelFirstEntryField = function($event){
         var element = $($event.currentTarget).closest('.sgi-collection-field').find('.sgi-new-model').find('input:not([type=hidden]):first');
         setTimeout(function(){
@@ -554,7 +557,7 @@ var sgiFieldController = function($scope){
 
     $scope.isInvalidRow = function(index){
         var errors = [];
-        var myType = $scope.field.type[0];
+        var myType = self.field.type[0];
         if(!myType){
             return true;
         }
@@ -574,7 +577,12 @@ var sgiFieldController = function($scope){
         }else{
             mySpec = FlexiSpecs.typeMapping[myType];
             if(mySpec && doc){
-                mySpec.flexiValidate(doc, $scope.field, 'test', errors);
+                if(_.isFunction(mySpec.flexiValidate)) {
+                    mySpec.flexiValidate(doc, self.field, 'test', errors);
+                }else{
+                    // no validation defined.
+                    // TODO we need to validate regex!
+                }
             }else{
                 return true;
             }
@@ -596,41 +604,89 @@ var sgiFieldController = function($scope){
     };
     $scope.showErrorMessageFor = function(errorType){
         try{
-            return $scope.field.validation[errorType].value !== null
+            return self.field.validation[errorType].value !== null
         }catch(e){
             return false;
         }
     };
+    $scope.setSelectedIndex = function(index){
+       // self.$apply(function(){
+            self.myIndex = index;
+       // });
+    };
     $scope.switchModel = function(index, $event){
         var formScope = angular.element($($event.currentTarget).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
-        $scope.myIndex = index;
-        if(!$scope.singleMode){
-            formScope.model = $scope.collection[index];
+        self.setSelectedIndex(index);
+        if(!self.singleMode){
+            formScope.model = self.collection[index];
         }
         setFocusToNewCollectionModelFirstEntryField($event);
     };
+    $scope.removeModel = function(index){
+        self.collection.splice(index, 1);
+        self.setSelectedIndex(null);
+    };
     $scope.addModel = function(collectionx, $event){
         var formScope = angular.element($($event.currentTarget).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
-        var newSpec = $scope.field.type;
+        var newSpec = self.field.type;
         if(_.isArray(newSpec)){
             newSpec = newSpec[0];
         };
 
         var newObj = FlexiSpecs.create(newSpec);
 
-        if(!$scope.singleMode) {
-            $scope.collection.push(newObj);
-            $scope.myIndex = $scope.collection.length - 1;
+        if(!self.singleMode) {
+            self.collection.push(newObj);
+            self.setSelectedIndex(self.collection.length - 1);
             formScope.model = newObj;
         }else{
-            if($scope.collection != formScope.model){
-                formScope.model = $scope.collection;
+            if(self.collection != formScope.model){
+                formScope.model = self.collection;
             }
             formScope.model.push(newObj);
-            $scope.myIndex = formScope.model.length - 1;
+            self.setSelectedIndex(formScope.model.length - 1);
         }
 
         setFocusToNewCollectionModelFirstEntryField($event);
+    };
+    $scope.getDisplayString = function(myItem, internal, index, selectedIndex, element) {
+        var result = "";
+        if (myItem && typeof myItem.toSgiDisplayString == 'function') {
+            result = myItem.toSgiDisplayString();
+        } else {
+            result = _.reduce(myItem, function (memo, value, attribute) {
+                if (value) {
+                    if (!_.startsWith(attribute, '$') && !(_.startsWith(attribute, '_'))) {
+                        var addOnString = "";
+                        if (typeof value.toSgiDisplayString == 'function') {
+                            addOnString = value.toSgiDisplayString();
+                        } else {
+                            if (typeof value == 'object') {
+                                addOnString = this.getDisplayString(value, true);
+                            } else {
+                                addOnString = value;
+                            }
+                        }
+                        if (addOnString && !_.isEmpty(addOnString)) {
+                            if (memo && !_.isEmpty(memo)) {
+                                return memo + ", " + addOnString;
+                            }
+                            return addOnString;
+                        }
+                    }
+                }
+                return memo;
+            }, "", this);
+        }
+        if (internal || (result && !_.isEmpty(result))) {
+            return result;
+        }
+        if (index == selectedIndex) {
+            if(myItem)
+            return "Please enter some data ..."
+        } else {
+            return "New entry! Please select to add some data!";
+        }
     };
 };
 
@@ -663,40 +719,6 @@ var sgiAutoformController = function($scope){
     };
     $scope.setModel = function(value){
         self.model = value;
-    };
-    $scope.getDisplayString = function(myItem, internal){
-        var result = "";
-        if(myItem && typeof myItem.toSgiDisplayString == 'function'){
-            result = myItem.toSgiDisplayString();
-        }else {
-            result = _.reduce(myItem, function (memo, value, attribute) {
-                if (value) {
-                    if (!_.startsWith(attribute, '$') && !(_.startsWith(attribute, '_'))) {
-                        var addOnString = "";
-                        if (typeof value.toSgiDisplayString == 'function') {
-                            addOnString = value.toSgiDisplayString();
-                        } else {
-                            if (typeof value == 'object') {
-                                addOnString = this.getDisplayString(value, true);
-                            } else {
-                                addOnString = value;
-                            }
-                        }
-                        if (addOnString && !_.isEmpty(addOnString)) {
-                            if (memo && !_.isEmpty(memo)) {
-                                return memo + ", " + addOnString;
-                            }
-                            return addOnString;
-                        }
-                    }
-                }
-                return memo;
-            }, "", this);
-        }
-        if(internal || (result && !_.isEmpty(result))){
-            return result;
-        }
-        return "New entry! Please select to edit.";
     };
 
     // $scope.setModel({gender: 'female', name: {firstName: 'Abbey', lastName: 'Pavlovich'}});
@@ -767,33 +789,31 @@ ngMeteorForms
             controller: ['$scope', sgiAutoformController],
             compile: sgiAutoformCompile
         }
-    }]);
-//    .directive('sgiMaxCount', ['$scope', function (scope){
-//        return {
-//
-//            require: 'ngModel',
-//            restrict: 'A',
-//            link: function(scope, elem, attr, ngModel) {
-//
-//                if(scope && scope.field && scope.field.validation && scope.field.validation.maxCount && scope.field.validation.maxCount.value) {
-//                    var max = Number.parse(scope.field.validation.maxCount.value);
-//                }
-//
-//                //For DOM -> model validation
-//                ngModel.$parsers.unshift(function(value) {
-//                    var valid = blacklist.indexOf(value) === -1;
-//                    ngModel.$setValidity('blacklist', valid);
-//                    return valid ? value : undefined;
-//                });
-//
-//                //For model -> DOM validation
-//                ngModel.$formatters.unshift(function(value) {
-//                    ngModel.$setValidity('blacklist', blacklist.indexOf(value) === -1);
-//                    return value;
-//                });
-//            }
-//        }
-//    }]);
+    }])
+    .directive('sgiMaxcount', function (){
+        return {
+            restrict: 'A',
+            require: 'ngModel',
+            link: ['$scope', function(scope, elem, attr, ngModel) {
+                if(attr.sgiMaxcount) {
+
+                    //For DOM -> model validation
+                    ngModel.$parsers.unshift(function (value) {
+                        var valid = attr.sgiMaxCount < value.length;
+                        ngModel.$setValidity('sgiMaxCount', valid);
+                        return valid ? value : value;
+                    });
+
+                    //For model -> DOM validation
+                    ngModel.$formatters.unshift(function (value) {
+                        ngModel.$setValidity('sgiMaxCount', attr.sgiMaxCount < value.length);
+                        return value;
+                    });
+                }
+
+            }]
+        }
+    });
 
 
 
@@ -870,7 +890,15 @@ Package.meteor.Meteor.startup(function(){
      */
 
     var sgiFieldCreateContext = function(element, attrs){
-        return getFieldAsContextObject(element, attrs);
+        var result = getFieldAsContextObject(element, attrs);
+        var theName = getAttributeFromElement(element, 'field');
+        if(theName){
+            theName = _getModelFieldBaseName(theName) + 'Form';
+            result.formName = theName;
+        }
+
+        return result;
+
     };
 
     var sgiFieldSgiTemplate = function(element, attrs){
