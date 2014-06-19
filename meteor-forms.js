@@ -428,9 +428,9 @@ var updateScope = function(scope, element, attributes){
                 scope.myIndex = null;
                 scope.singleMode = false;
             }else{
-              //  var formScope = angular.element($(element).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
+                //  var formScope = angular.element($(element).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
                 var theCollection = _setValueOfPath(scope, getModelId(attributes.id), [], false);
-              //  formScope.model = theCollection;
+                //  formScope.model = theCollection;
                 scope.collection = theCollection;
                 scope.myIndex = null;
                 scope.singleMode = true;
@@ -550,6 +550,19 @@ var sgiFieldController = function($scope){
 
     $scope.isSelectedRow = function(index){
         return index == this.myIndex;
+    };
+
+    $scope.isInvalidRow = function(index){
+        var errors = [];
+        var spec = null;
+        var doc = this.collection && this.collection[index] ? null : this.collection[index];
+        if(!doc){
+            return true;
+        };
+
+        FlexiSpecs.verifyRules(doc, spec, null, errors);
+
+        return _.isEmpty(errors);
     };
 
     $scope.hasAvailableCollection = function(aCollection){
@@ -695,15 +708,15 @@ var sgiAutoformController = function($scope){
 };
 
 var sgiAutoformPreLink = function preLink(scope, iElement, iAttrs, controller){
-  //  Deps.autorun(function(){
-        scope.flexiModelname = iAttrs['model'];
-        scope.unwrapped = iAttrs['unwrapped'];
-        if(scope.unwrapped){
-            if(scope.singleMode){
-                scope.model = scope.collection;
-            }
+    //  Deps.autorun(function(){
+    scope.flexiModelname = iAttrs['model'];
+    scope.unwrapped = iAttrs['unwrapped'];
+    if(scope.unwrapped){
+        if(scope.singleMode){
+            scope.model = scope.collection;
         }
-  //  })
+    }
+    //  })
 };
 
 var sgiAutoformCompile = function compile(element, attrs){
@@ -738,6 +751,34 @@ ngMeteorForms
             compile: sgiAutoformCompile
         }
     }]);
+//    .directive('sgiMaxCount', ['$scope', function (scope){
+//        return {
+//
+//            require: 'ngModel',
+//            restrict: 'A',
+//            link: function(scope, elem, attr, ngModel) {
+//
+//                if(scope && scope.field && scope.field.validation && scope.field.validation.maxCount && scope.field.validation.maxCount.value) {
+//                    var max = Number.parse(scope.field.validation.maxCount.value);
+//                }
+//
+//                //For DOM -> model validation
+//                ngModel.$parsers.unshift(function(value) {
+//                    var valid = blacklist.indexOf(value) === -1;
+//                    ngModel.$setValidity('blacklist', valid);
+//                    return valid ? value : undefined;
+//                });
+//
+//                //For model -> DOM validation
+//                ngModel.$formatters.unshift(function(value) {
+//                    ngModel.$setValidity('blacklist', blacklist.indexOf(value) === -1);
+//                    return value;
+//                });
+//            }
+//        }
+//    }]);
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
