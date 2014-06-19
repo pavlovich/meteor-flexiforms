@@ -554,15 +554,32 @@ var sgiFieldController = function($scope){
 
     $scope.isInvalidRow = function(index){
         var errors = [];
-        var spec = null;
-        var doc = this.collection && this.collection[index] ? null : this.collection[index];
-        if(!doc){
+        var myType = $scope.field.type[0];
+        if(!myType){
             return true;
-        };
+        }
+        var doc = this.collection && this.collection[index] ? this.collection[index] : null;
 
-        FlexiSpecs.verifyRules(doc, spec, null, errors);
+        var mySpec = FlexiSpecs.findOne({name: myType});
+        if(mySpec) {
+            var spec = (myType) ? mySpec : null;
 
-        return _.isEmpty(errors);
+            if (!doc || !spec) {
+                return true;
+            }
+            ;
+
+            FlexiSpecs.verifyRules(doc, spec, null, errors);
+
+        }else{
+            mySpec = FlexiSpecs.typeMapping[myType];
+            if(mySpec && doc){
+                mySpec.flexiValidate(doc, $scope.field, 'test', errors);
+            }else{
+                return true;
+            }
+        }
+        return !_.isEmpty(errors);
     };
 
     $scope.hasAvailableCollection = function(aCollection){
@@ -889,13 +906,24 @@ Package.meteor.Meteor.startup(function(){
     radioField.createContext = function(element, attrs){
         var context = getFieldAsContextObject(element, attrs);
         context.orientation = ('vertical' in attrs) ? 'vertical' : '';
-        if(context && context.options && context.options.collection){
-            _.each(context.options.collection, function(option){
-                option.modelId = context.modelId;
-                option.name = context.name;
-            })
-            return context;
+        var myOptions = [];
+        if(context && context.options && context.options.collection) {
+            if (_.isArray(context.options.collection)) {
+                myOptions = context.options.collection;
+            } else {
+                myOptions = FlexiModels[context.options.collection].find().fetch();
+            }
         }
+        _.each(myOptions, function(option){
+            option._modelId = context.modelId;
+            option._name = context.name;
+            option._id = context.name + "." + option[context.options.value];
+            option._value = option[context.options.value];
+            option._label = option[context.options.label];
+        });
+
+        context.collection = myOptions;
+        return context;
     };
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
