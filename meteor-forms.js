@@ -43,8 +43,8 @@ FlexiSpecs._transform = function(doc){
  */
 ngMeteorFleximodel =
     angular.module('ngMeteorFleximodel', ['ngMeteor'])
-        .run(['$collection', '$rootScope', function($collection, $rootScope){
-            $collection('FlexiSpecs', $rootScope);
+        .run(['$rootScope', function($rootScope){
+          //  $collection('FlexiSpecs', $rootScope);
         }]);
 
 /**
@@ -66,6 +66,31 @@ ngMeteorForms = angular.module('ngMeteorForms', ['ngMeteorFleximodel']);
  */
 ngMeteorForms.templateRegistry = {};
 
+ngMeteorForms.useReactiveQueries = true;
+
+ngMeteorForms.meteorFindOne = function(collection, query, reactive){
+    var theQuery = (typeof query == 'undefined') ? {} : query;
+    var isReactiveQuery = (typeof reactive == 'undefined') ? ngMeteorForms.useReactiveQueries : reactive;
+    return ngMeteorForms.meteorFind(collection, theQuery, true, isReactiveQuery);
+};
+
+
+ngMeteorForms.meteorFind = function(collection, query, single, reactive){
+    var result = null;
+
+        var findSingle = (typeof single == 'undefined') ? false : single;
+        var theQuery = (typeof query == 'undefined') ? {} : query;
+        var isReactiveQuery = (typeof reactive == 'undefined') ? ngMeteorForms.useReactiveQueries : reactive;
+        if(findSingle){
+            result = collection.findOne(query, {reactive: isReactiveQuery});
+        }else {
+            result = collection.find(theQuery, {reactive: isReactiveQuery});
+        }
+
+
+    return result;
+}
+
 /**
  * Return the size of the collection which should be used to populate the selection options for the
  * single or multi-selection control specified by the supplied <field>.
@@ -75,11 +100,11 @@ var _getCollectionSize = function(field){
     if(field.options.collectionName && typeof field.options.collectionName === 'string'){
         var collection = FlexiModels[field.options.collectionName];
         if(collection && typeof collection.find === "function"){
-            collectionSize = collection.find().count();
+            collectionSize = ngMeteorForms.meteorFind(collection).count();
         }else{
             collection = getGlobal(field.options.collectionName);
             if(collection && typeof collection.find === 'function'){
-                collectionSize = collection.find().count();
+                collectionSize = ngMeteorForms.meteorFind(collection).count();
             }
         }
     }else{
@@ -201,7 +226,7 @@ ngMeteorForms.errorTypes = {
 Package.ui.UI.registerHelper("sgiAutoformElementTemplate", function () {
     var templateName = '_sgiAutoformField';
     if(this && this.type && !_.isArray(this.type)){
-        var flexiSpec = FlexiSpecs.findOne({name: this.type.toString()});
+        var flexiSpec = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: this.type.toString()});
         if(flexiSpec){
             templateName = '_sgiAutoformFieldGroup';
         }
@@ -324,7 +349,7 @@ getField = function (fieldId) {
     for (var i = 0; i < counter; i++) {
         var attributeName = attributeMap[i];
         typeName = (type.fields)[attributeName].type;
-        type = FlexiSpecs.findOne({name: typeName});
+        type = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: typeName});
         if(!type){return null};
     }
     var field = (type.fields)[attributeMap[attributeMap.length - 1]];
@@ -423,7 +448,7 @@ var updateScope = function(scope, element, attributes){
     }else {
 
         if(field.type && _.isArray(field.type)){
-            if(FlexiSpecs.findOne({name: field.type[0]})){
+            if(ngMeteorForms.meteorFindOne(FlexiSpecs, {name: field.type[0]})){
                 scope.collection = _setValueOfPath(scope, getModelId(attributes.id), [], false);
                 scope.myIndex = null;
                 scope.singleMode = false;
@@ -447,7 +472,7 @@ var updateScope = function(scope, element, attributes){
                         field.options = {};
                     }
                     ;
-                    field.options.collection = collection.find().fetch();
+                    field.options.collection = ngMeteorForms.meteorFind(collection).fetch();
                 } else {
                     //Else, see if it is the name of a global collection
                     var collectionName = _.capitalize(owl.deepCopy(field.options.collectionName));
@@ -457,7 +482,7 @@ var updateScope = function(scope, element, attributes){
                             field.options = {};
                         }
                         ;
-                        field.options.collection = collection.find().fetch();
+                        field.options.collection = ngMeteorForms.meteorFind(meteorCollection).fetch();
                     }
                 }
             }
@@ -516,7 +541,7 @@ var getFieldAsContextObject = function(element, attrs){
             field.unwrapped = true;
             field.type = field.type[0];
         }
-        if(field.unwrapped && field.type && !FlexiSpecs.findOne({name: field.type})){
+        if(field.unwrapped && field.type && !ngMeteorForms.meteorFindOne(FlexiSpecs, {name: field.type})){
             field.modelId = "model[myIndex]"
         }else{
             field.modelId = getModelId(attrs.id);
@@ -556,6 +581,7 @@ var sgiFieldController = function($scope){
     };
 
     $scope.isInvalidRow = function(index){
+
         var errors = [];
         var myType = self.field.type[0];
         if(!myType){
@@ -563,7 +589,7 @@ var sgiFieldController = function($scope){
         }
         var doc = this.collection && this.collection[index] ? this.collection[index] : null;
 
-        var mySpec = FlexiSpecs.findOne({name: myType});
+        var mySpec = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: myType});
         if(mySpec) {
             var spec = (myType) ? mySpec : null;
 
@@ -693,7 +719,7 @@ var sgiFieldController = function($scope){
 var sgiFieldPreLink = function preLink(scope, iElement, iAttrs, controller) {
     scope.xid = iAttrs.id;
     scope.modelId = getModelId(iAttrs.id);
-    Deps.autorun(function(){
+    var comp = Deps.nonreactive(function(){
         if(!scope.$$phase) {
             scope.$apply(function () {
                 updateScope(scope, iElement, iAttrs);
@@ -701,6 +727,10 @@ var sgiFieldPreLink = function preLink(scope, iElement, iAttrs, controller) {
         }else{
             updateScope(scope, iElement, iAttrs);
         }
+    });
+
+    scope.$on('$destroy', function(){
+        comp.stop();
     })
 };
 
@@ -721,13 +751,11 @@ var sgiAutoformController = function($scope){
         self.model = value;
     };
 
-    // $scope.setModel({gender: 'female', name: {firstName: 'Abbey', lastName: 'Pavlovich'}});
-
     $scope.save = function(){
         this.preSave();
         console.log("Built-in Save happening now!");
         var baseObj = this.getModel();
-        var baseSpec = FlexiSpecs.findOne({name: this.flexiModelname});
+        var baseSpec = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: this.flexiModelname});
         var converted = FlexiSpecs.convert(baseObj, baseSpec);
         //TODO have to validate yet.
         FlexiModels[this.flexiModelname].insert(converted);
@@ -747,15 +775,19 @@ var sgiAutoformController = function($scope){
 };
 
 var sgiAutoformPreLink = function preLink(scope, iElement, iAttrs, controller){
-    //  Deps.autorun(function(){
-    scope.flexiModelname = iAttrs['model'];
-    scope.unwrapped = iAttrs['unwrapped'];
-    if(scope.unwrapped){
-        if(scope.singleMode){
-            scope.model = scope.collection;
+    var comp = Deps.nonreactive(function(){
+        scope.flexiModelname = iAttrs['model'];
+        scope.unwrapped = iAttrs['unwrapped'];
+        if(scope.unwrapped){
+            if(scope.singleMode){
+                scope.model = scope.collection;
+            }
         }
-    }
-    //  })
+    });
+
+    scope.$on('$destroy', function(){
+        comp.stop();
+    });
 };
 
 var sgiAutoformCompile = function compile(element, attrs){
@@ -939,7 +971,7 @@ Package.meteor.Meteor.startup(function(){
             if (_.isArray(context.options.collection)) {
                 myOptions = context.options.collection;
             } else {
-                myOptions = FlexiModels[context.options.collection].find().fetch();
+                myOptions = ngMeteorForms.meteorFind(FlexiModels[context.options.collection]).fetch();
             }
         }
         _.each(myOptions, function(option){

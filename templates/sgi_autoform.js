@@ -62,7 +62,7 @@ var hasController = function(element){
 };
 
 var _getModelFields = function(modelName){
-    var type = FlexiSpecs.findOne({name: modelName});
+    var type = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: modelName});
     var fieldsObject = type.fields;
     var fields = [];
     _.each(fieldsObject, function (fieldSpec, fieldName) {
@@ -84,7 +84,7 @@ Package.templating.Template['sgiAutoform'].helpers({
         var origField = getField(fieldName);
         if(origField && origField.type && _.isArray(origField.type)){
             var origType = origField.type[0];
-            var containedType = FlexiSpecs.findOne({name: origType});
+            var containedType = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: origType});
             if(containedType){
                 return _getModelFields(origType);
             }else{

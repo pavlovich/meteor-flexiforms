@@ -5,7 +5,7 @@
 Package.templating.Template['_sgiAutoformFieldGroup'].helpers({
     getFields: function(fieldsObject) {
         var self = this;
-        var type = FlexiSpecs.findOne({name: this.type.toString()});
+        var type = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: this.type.toString()});
         var fieldsObject = type.fields;
         var fields = [];
         _.each(fieldsObject, function (value, index) {
@@ -14,7 +14,6 @@ Package.templating.Template['_sgiAutoformFieldGroup'].helpers({
                 obj.base = self.base + "." + index;
                 obj.field = value;
                 obj.inline = self.inline ? true : false;
-                obj.showLabel = "I did it there";
                 obj.parentField = type;
                 fields.push(obj);
             }});
@@ -29,7 +28,7 @@ Package.templating.Template['_sgiAutoformFieldGroup'].helpers({
     },
     addGroupBox: function(a, b, c){
         return !(this.embed);
-       // var objType = FlexiSpecs.findOne({name: this.type.toString()});
+       // var objType = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: this.type.toString()});
        // return !(objType && objType.embed);
     }
 });
