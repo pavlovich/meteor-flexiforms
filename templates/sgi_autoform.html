@@ -2,8 +2,8 @@
     <div>
         <div class="sgi-auto-form">
             <sgi-form name="{{getFormName getElement}}" novalidate="" mainform="{{model}}" class="{{getFormClass getElement}}" ng-controller="{{getControllerName getElement}}" >
-                <sgi-div class="meteor-form-fields">
-                    <sgi-div class="copy-width narrow">
+                <div class="meteor-form-fields">
+                    <div class="copy-width narrow">
                         {{#if model}}
                             <sgi-field-group name="{{formTitle}}">
                                     <input type="hidden" name="model" value="{{model}}"/>
@@ -17,8 +17,8 @@
                                 {{> sgiAutoformElementTemplate }}
                             {{/each}}
                         {{/if}}
-                    </sgi-div>
-                </sgi-div>
+                    </div>
+                </div>
             </sgi-form>
         </div>
     </div>

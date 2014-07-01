@@ -14,7 +14,6 @@ Package.on_use(function (api) {
     // Files to load in Client only.
     api.add_files([
         'styles/styles.styl',
-        'templates/sgi_div.html',
         'templates/sgi_form.html',
         'templates/sgi_field.html',
         'templates/sgi_collection_field.html',
