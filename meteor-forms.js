@@ -716,30 +716,7 @@ var sgiFieldController = function($scope){
     };
 };
 
-var sgiFieldPreLink = function preLink(scope, iElement, iAttrs, controller) {
-    scope.xid = iAttrs.id;
-    scope.modelId = getModelId(iAttrs.id);
-    var comp = Deps.nonreactive(function(){
-        if(!scope.$$phase) {
-            scope.$apply(function () {
-                updateScope(scope, iElement, iAttrs);
-            })
-        }else{
-            updateScope(scope, iElement, iAttrs);
-        }
-    });
 
-    scope.$on('$destroy', function(){
-        comp.stop();
-    })
-};
-
-var sgiFieldCompile = function compile(element, attrs) {
-    expandElement(element, attrs);
-    return {
-        pre: sgiFieldPreLink
-    }
-};
 
 var sgiAutoformController = function($scope){
     var self = $scope;
@@ -755,6 +732,7 @@ var sgiAutoformController = function($scope){
         this.preSave();
         console.log("Built-in Save happening now!");
         var baseObj = this.getModel();
+        console.log($scope);
         var baseSpec = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: this.flexiModelname});
         var converted = FlexiSpecs.convert(baseObj, baseSpec);
         //TODO have to validate yet.
@@ -775,7 +753,7 @@ var sgiAutoformController = function($scope){
 };
 
 var sgiAutoformPreLink = function preLink(scope, iElement, iAttrs, controller){
-    var comp = Deps.nonreactive(function(){
+ //   var comp = Deps.nonreactive(function(){
         scope.flexiModelname = iAttrs['model'];
         scope.unwrapped = iAttrs['unwrapped'];
         if(scope.unwrapped){
@@ -783,11 +761,11 @@ var sgiAutoformPreLink = function preLink(scope, iElement, iAttrs, controller){
                 scope.model = scope.collection;
             }
         }
-    });
+ //   });
 
-    scope.$on('$destroy', function(){
-        comp.stop();
-    });
+ //   scope.$on('$destroy', function(){
+ //       comp.stop();
+ //   });
 };
 
 var sgiAutoformCompile = function compile(element, attrs){
@@ -807,7 +785,32 @@ ngMeteorForms
             restrict: 'E',
             scope: true,
             controller: ['$scope', sgiFieldController],
-            compile: sgiFieldCompile
+            compile: function compile(element, attrs) {
+                expandElement(element, attrs);
+                return {
+                    pre: function preLink(scope, iElement, iAttrs, controller) {
+                        scope.xid = iAttrs.id;
+                        scope.modelId = getModelId(iAttrs.id);
+                        var theInput = angular.element($(iElement).find('input').get());
+                        theInput.attr('ng-model', scope.modelId);
+                        $compile(theInput)(scope);
+
+                       // var comp = Deps.nonreactive(function(){
+                            if(!scope.$$phase) {
+                                scope.$apply(function () {
+                                    updateScope(scope, iElement, iAttrs);
+                                })
+                            }else{
+                                updateScope(scope, iElement, iAttrs);
+                            }
+                      //  });
+
+                     //   scope.$on('$destroy', function(){
+                     //       comp.stop();
+                     //   })
+                    }
+                }
+            }
         };
     }])
 /**
