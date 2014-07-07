@@ -9,7 +9,7 @@
         "underscore-string-latest": {},
         "meteor-fleximodel": {
             "git": "git://github.com/pavlovich/meteor-fleximodel.git",
-            "branch": "meteorRendering"
+            "branch": "memory_cleanup"
         },
         "ngMeteor": {
             "git": "git://github.com/pavlovich/ngMeteor.git",
