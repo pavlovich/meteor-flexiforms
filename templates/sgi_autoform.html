@@ -1,7 +1,7 @@
 <template name="sgiAutoform">
     <div>
         <div class="sgi-auto-form">
-            <sgi-form name="{{getFormName getElement}}" novalidate="" mainform="{{model}}" class="{{getFormClass getElement}}" ng-controller="{{getControllerName getElement}}" >
+            <sgi-form name="[[formName]]" novalidate="" mainform="[[flexiModelname]]" class="[[formClass]]" replaceme >
                 <div class="meteor-form-fields">
                     <div class="copy-width narrow">
                         {{#if model}}

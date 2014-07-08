@@ -1,12 +1,14 @@
 <template name="sgiForm">
-    <div ng-controller="{{ngController}}">
-        <ng-form name="{{name}}" class="{{class}}">
-            <div class="form-inline">
-                {{{contents}}}
-            </div>
-            {{#if mainform}}
-                {{> sgiFormButtons }}
-            {{/if}}
-        </ng-form>
+    <div>
+        <div replaceme >
+            <ng-form name="{{name}}" class="{{class}}">
+                <div class="form-inline">
+                    {{{contents}}}
+                </div>
+                {{#if mainform}}
+                    {{> sgiFormButtons }}
+                {{/if}}
+            </ng-form>
+        </div>
     </div>
 </template>

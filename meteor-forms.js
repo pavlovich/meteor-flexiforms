@@ -398,11 +398,16 @@ var getSgiElementTemplate = function(element, attrs){
  * some of the new elements to be, in turn, replaced by further meteor template rendering the results of each of which
  * themselves will be processed by angular themselves possibly resulting in yet another round. And so on ...
  */
-var expandElement = function(element, attrs) {
+var expandElement = function(element, attrs, replace) {
+    var doReplace = _.isUndefined(replace) ? true : replace;
     var template = getSgiElementTemplate(element, attrs);
     var context = template.createContext(element, attrs);
     var result = ngMeteor.renderTemplateInContext(template, context);
-    element.replaceWith(result);
+    if(doReplace) {
+        element.replaceWith(result);
+    }
+
+    return result;
 };
 
 /**
@@ -753,23 +758,112 @@ var sgiAutoformController = function($scope){
 };
 
 var sgiAutoformPreLink = function preLink(scope, iElement, iAttrs, controller){
- //   var comp = Deps.nonreactive(function(){
-        scope.flexiModelname = iAttrs['model'];
-        scope.unwrapped = iAttrs['unwrapped'];
-        if(scope.unwrapped){
-            if(scope.singleMode){
-                scope.model = scope.collection;
+    //   var comp = Deps.nonreactive(function(){
+    scope.flexiModelname = iAttrs['model'];
+    var modelNameString = iAttrs['model'] ? (_.capitalize(iAttrs['model']) + " ") : "";
+
+
+
+    var result = iAttrs['name'];
+    if(!result){
+        result = iAttrs['model'];
+        if(!result){
+            result = iAttrs['field'];
+            if(!result){
+                result = 'testForm';
+            }else {
+                result = 'field' + (_.reduce(result.split("."), function(memo, q){return memo + _.capitalize(q)}, ""));
             }
         }
- //   });
+    }
 
- //   scope.$on('$destroy', function(){
- //       comp.stop();
- //   });
+    scope.formName = result;
+
+    result = iAttrs['class'];
+    if(!result){
+        result = 'simple-form';
+    }
+
+    scope.formClass = result;
+
+
+    result = iAttrs['meteor-forms-controller'];
+    if(!result){
+        result = iAttrs['model'];
+        if(result){
+            result = _.camelize(result) + "Controller";
+        }else{
+            result = iAttrs['field'];
+            if(result){
+                result = _getModelFieldBaseName(result) + "Controller";
+            }else{
+                result = 'testController'
+            }
+        }
+    }
+
+    console.log('ok ... its: ' + result);
+
+    scope.sgiControllerName = result;
+
+    scope.formTitle = "New " + modelNameString + "Information";
+    scope.unwrapped = iAttrs['unwrapped'];
+    if(scope.unwrapped){
+        if(scope.singleMode){
+            scope.model = scope.collection;
+        }
+    }
+    //   });
+
+    //   scope.$on('$destroy', function(){
+    //       comp.stop();
+    //   });
 };
 
+var hasController = function(name) {
+    var hasController = false;
+    _.each(ngMeteorForms._invokeQueue, function (queuedAngularConstructor) {
+        if (queuedAngularConstructor[1] && queuedAngularConstructor[1] == "register") {
+            if (queuedAngularConstructor[2]) {
+                if (queuedAngularConstructor[2][0]) {
+                    if (queuedAngularConstructor[2][0] == name) {
+                        hasController = true;
+                    }
+                }
+            }
+        }
+    });
+    return hasController;
+}
+
 var sgiAutoformCompile = function compile(element, attrs){
-    expandElement(element, attrs);
+    var res = expandElement(element, attrs, false);
+
+    var result = attrs['meteor-forms-controller'];
+    if(!result){
+        result = attrs['model'];
+        if(result){
+            result = _.camelize(result) + "Controller";
+        }else{
+            result = attrs['field'];
+            if(result){
+                result = _getModelFieldBaseName(result) + "Controller";
+            }else{
+                result = null
+            }
+        }
+    }
+
+
+    if(result && hasController(result)) {
+        result = 'controller="' + result + '"';
+    }else {
+        result = ""
+    }
+    res = res.replace('replaceme', result);
+
+    element.replaceWith(res);
+
     return {
         pre: sgiAutoformPreLink
     }
@@ -823,6 +917,23 @@ ngMeteorForms
             scope: true,
             controller: ['$scope', sgiAutoformController],
             compile: sgiAutoformCompile
+        }
+    }])
+    .directive('sgiForm', ['$compile', function($compile){
+        return {
+            restrict: 'E',
+            compile: function compile(element, attrs){
+                var res = expandElement(element, attrs, false);
+                if(attrs.controller) {
+                    res = res.replace('replaceme=""', 'ng-controller="' + attrs.controller + '"');
+                }
+                element.replaceWith(res);
+                return {
+                    pre: function preLink(scope, iElement, iAttrs, controller) {
+                        _.extend(scope, iAttrs);
+                    }
+                }
+            }
         }
     }])
     .directive('sgiMaxcount', function (){
