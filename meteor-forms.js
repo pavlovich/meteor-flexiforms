@@ -66,7 +66,7 @@ ngMeteorForms = angular.module('ngMeteorForms', ['ngMeteorFleximodel']);
  */
 ngMeteorForms.templateRegistry = {};
 
-ngMeteorForms.useReactiveQueries = true;
+ngMeteorForms.useReactiveQueries = false;
 
 ngMeteorForms.meteorFindOne = function(collection, query, reactive){
     var theQuery = (typeof query == 'undefined') ? {} : query;
@@ -78,14 +78,14 @@ ngMeteorForms.meteorFindOne = function(collection, query, reactive){
 ngMeteorForms.meteorFind = function(collection, query, single, reactive){
     var result = null;
 
-        var findSingle = (typeof single == 'undefined') ? false : single;
-        var theQuery = (typeof query == 'undefined') ? {} : query;
-        var isReactiveQuery = (typeof reactive == 'undefined') ? ngMeteorForms.useReactiveQueries : reactive;
-        if(findSingle){
-            result = collection.findOne(query, {reactive: isReactiveQuery});
-        }else {
-            result = collection.find(theQuery, {reactive: isReactiveQuery});
-        }
+    var findSingle = (typeof single == 'undefined') ? false : single;
+    var theQuery = (typeof query == 'undefined') ? {} : query;
+    var isReactiveQuery = (typeof reactive == 'undefined') ? ngMeteorForms.useReactiveQueries : reactive;
+    if(findSingle){
+        result = collection.findOne(query, {reactive: isReactiveQuery});
+    }else {
+        result = collection.find(theQuery, {reactive: isReactiveQuery});
+    }
 
 
     return result;
@@ -436,6 +436,7 @@ var setField = function(scope, attributes){
         theField = owl.deepCopy(theField);
         theField.type = theField.type[0];
     }
+    theField.fieldId = attributes.id.replace(/\./g,'');
     scope.field = theField;
 };
 
@@ -586,7 +587,6 @@ var sgiFieldController = function($scope){
     };
 
     $scope.isInvalidRow = function(index){
-
         var errors = [];
         var myType = self.field.type[0];
         if(!myType){
@@ -721,7 +721,27 @@ var sgiFieldController = function($scope){
     };
 };
 
+var sgiFieldPreLink = function preLink(scope, iElement, iAttrs, controller) {
+    scope.xid = iAttrs.id;
+    scope.modelId = getModelId(iAttrs.id);
+ //   scope.fieldId = iAttrs.id.replace(/\./g,'')
+    Deps.autorun(function(){
+        if(!scope.$$phase) {
+            scope.$apply(function () {
+                updateScope(scope, iElement, iAttrs);
+            })
+        }else{
+            updateScope(scope, iElement, iAttrs);
+        }
+    })
+};
 
+var sgiFieldCompile = function compile(element, attrs) {
+    expandElement(element, attrs);
+    return {
+        pre: sgiFieldPreLink
+    }
+};
 
 var sgiAutoformController = function($scope){
     var self = $scope;
@@ -733,11 +753,12 @@ var sgiAutoformController = function($scope){
         self.model = value;
     };
 
+    // $scope.setModel({gender: 'female', name: {firstName: 'Abbey', lastName: 'Pavlovich'}});
+
     $scope.save = function(){
         this.preSave();
         console.log("Built-in Save happening now!");
         var baseObj = this.getModel();
-        console.log($scope);
         var baseSpec = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: this.flexiModelname});
         var converted = FlexiSpecs.convert(baseObj, baseSpec);
         //TODO have to validate yet.
@@ -758,11 +779,10 @@ var sgiAutoformController = function($scope){
 };
 
 var sgiAutoformPreLink = function preLink(scope, iElement, iAttrs, controller){
-    //   var comp = Deps.nonreactive(function(){
+
+    //var comp = Deps.nonreactive(function(){
     scope.flexiModelname = iAttrs['model'];
     var modelNameString = iAttrs['model'] ? (_.capitalize(iAttrs['model']) + " ") : "";
-
-
 
     var result = iAttrs['name'];
     if(!result){
@@ -786,7 +806,6 @@ var sgiAutoformPreLink = function preLink(scope, iElement, iAttrs, controller){
 
     scope.formClass = result;
 
-
     result = iAttrs['meteor-forms-controller'];
     if(!result){
         result = iAttrs['model'];
@@ -802,9 +821,9 @@ var sgiAutoformPreLink = function preLink(scope, iElement, iAttrs, controller){
         }
     }
 
-    console.log('ok ... its: ' + result);
-
     scope.sgiControllerName = result;
+
+    scope.isNested = _.isUndefined(iAttrs['model']);
 
     scope.formTitle = "New " + modelNameString + "Information";
     scope.unwrapped = iAttrs['unwrapped'];
@@ -837,6 +856,7 @@ var hasController = function(name) {
 }
 
 var sgiAutoformCompile = function compile(element, attrs){
+
     var res = expandElement(element, attrs, false);
 
     var result = attrs['meteor-forms-controller'];
@@ -869,6 +889,7 @@ var sgiAutoformCompile = function compile(element, attrs){
     }
 };
 
+
 ngMeteorForms
 /**
  * The 'sgiField' directive replaces 'sgi-field' elements with an appropriate input-type field based on the field
@@ -879,32 +900,42 @@ ngMeteorForms
             restrict: 'E',
             scope: true,
             controller: ['$scope', sgiFieldController],
+         //   compile: sgiFieldCompile
             compile: function compile(element, attrs) {
-                expandElement(element, attrs);
+                var res = expandElement(element, attrs, false);
+                if(attrs.controller) {
+
+                    console.log(attrs)
+                    var theId = (attrs.id == 'model') ? attrs.modelId : attrs.id;
+                    theId = getModel(theId);
+                    res = res.replace('input', 'ng-model="' + theId+ '"');
+                }
+                element.replaceWith(res);
                 return {
                     pre: function preLink(scope, iElement, iAttrs, controller) {
-                        scope.xid = iAttrs.id;
-                        scope.modelId = getModelId(iAttrs.id);
-                        var theInput = angular.element($(iElement).find('input').get());
-                        theInput.attr('ng-model', scope.modelId);
-                        $compile(theInput)(scope);
+                        scope.xid = (iAttrs.id == 'model') ? iAttrs.modelId : iAttrs.id;
+                        scope.modelId = getModelId(scope.xid);
+                       // var theInput = angular.element($(iElement).find('input').get());
+                       // theInput.attr('ng-model', scope.modelId);
+                       // $compile(theInput)(scope);
 
-                       // var comp = Deps.nonreactive(function(){
-                            if(!scope.$$phase) {
-                                scope.$apply(function () {
-                                    updateScope(scope, iElement, iAttrs);
-                                })
-                            }else{
+                        // var comp = Deps.nonreactive(function(){
+                        if(!scope.$$phase) {
+                            scope.$apply(function () {
                                 updateScope(scope, iElement, iAttrs);
-                            }
-                      //  });
+                            })
+                        }else{
+                            updateScope(scope, iElement, iAttrs);
+                        }
+                        //  });
 
-                     //   scope.$on('$destroy', function(){
-                     //       comp.stop();
-                     //   })
+                        //   scope.$on('$destroy', function(){
+                        //       comp.stop();
+                        //   })
                     }
                 }
             }
+
         };
     }])
 /**
@@ -931,6 +962,8 @@ ngMeteorForms
                 return {
                     pre: function preLink(scope, iElement, iAttrs, controller) {
                         _.extend(scope, iAttrs);
+
+                        scope.showButtons = iAttrs['mainform'] ? true : false;
                     }
                 }
             }
@@ -1085,7 +1118,7 @@ Package.meteor.Meteor.startup(function(){
             if (_.isArray(context.options.collection)) {
                 myOptions = context.options.collection;
             } else {
-                myOptions = ngMeteorForms.meteorFind(FlexiModels[context.options.collection]).fetch();
+                myOptions = FlexiModels[context.options.collection].find().fetch();
             }
         }
         _.each(myOptions, function(option){

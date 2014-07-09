@@ -1,22 +1,38 @@
 <template name="sgiAutoform">
-    <div>
+    <div ng-if="!isNested">
         <div class="sgi-auto-form">
+           <!-- <sgi-form name="{{getFormName getElement}}" novalidate="" mainform="{{model}}" class="{{getFormClass getElement}}" ng-controller="{{getControllerName getElement}}" >  -->
             <sgi-form name="[[formName]]" novalidate="" mainform="[[flexiModelname]]" class="[[formClass]]" replaceme >
                 <div class="meteor-form-fields">
                     <div class="copy-width narrow">
-                        {{#if model}}
+
+
                             <sgi-field-group name="{{formTitle}}">
+                                    <div data-form-name="hello">
                                     <input type="hidden" name="model" value="{{model}}"/>
                                     {{#each getModelFields model }}
                                         {{> sgiAutoformElementTemplate }}
                                     {{/each}}
+                                    </div>
                             </sgi-field-group>
-                        {{else}}
+
+                    </div>
+                </div>
+            </sgi-form>
+        </div>
+    </div>
+    <div ng-if="isNested">
+        <div class="sgi-auto-form">
+            <!-- <sgi-form name="{{getFormName getElement}}" novalidate="" mainform="{{model}}" class="{{getFormClass getElement}}" ng-controller="{{getControllerName getElement}}" >  -->
+            <sgi-form name="[[formName]]" novalidate="" mainform="[[flexiModelname]]" class="[[formClass]]" replaceme >
+                <div class="meteor-form-fields">
+                    <div class="copy-width narrow">
+
                             <input type="hidden" name="field" value="{{field}}"/>
                             {{#each getFieldFields field unwrapped }}
-                                {{> sgiAutoformElementTemplate }}
+                            {{> sgiAutoformElementTemplate }}
                             {{/each}}
-                        {{/if}}
+
                     </div>
                 </div>
             </sgi-form>

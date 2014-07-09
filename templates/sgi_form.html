@@ -5,9 +5,26 @@
                 <div class="form-inline">
                     {{{contents}}}
                 </div>
-                {{#if mainform}}
-                    {{> sgiFormButtons }}
-                {{/if}}
+                <div ng-if="showButtons">
+                    <div>
+                        <div id="xxx" class="c-checkbox c-form-element chk-agree c-root is-enabled is-loaded">
+                            <label class="checkbox">
+                                <input type="checkbox" data-uid="u22">
+                                <span class="c-label">I agree to the <a>terms and conditions</a></span>
+                                <span class="c-required">*</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="call-to-action sans ">
+                        <div class="try-button btn-border sans">
+                            <a href="#" ng-click="save()" class="try-now btn btn-large btn-success">Create Now</a>
+                            <div class="footer-text">Free 40-day trial. No credit card required.</div>
+                        </div>
+                    </div>
+                </div>
             </ng-form>
         </div>
     </div>

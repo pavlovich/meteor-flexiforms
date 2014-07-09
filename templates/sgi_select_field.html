@@ -1,18 +1,16 @@
 <template name="sgiSelectField">
     <div class="form-group" >
-        <label for="[[field.fieldId">
+        <label for="{{fieldId}}">
             [[field.label]]
         </label>
         <div class="input-group" style="border: solid 1px #b3b3b3;">
             <span class="input-group-addon" ng-if="field.prefix">
                 [[field.prefix]]
             </span>
-            <select ng-model="{{modelId}}" name="[[field.fieldId]]" ng-required="true" class="form-control" ng-options="{{selectOptionsSpec getOptions}}" title="[[field.message]]">
+            <select ng-model="{{modelId}}" name="{{fieldId}}" ng-required="true" class="form-control" ng-options="{{selectOptionsSpec getOptions}}" title="[[field.message]]">
                 <option value="" ng-if="field.message">[[field.message]]</option>
             </select>
         </div>
-        <!--
         <div class="error" ng-if="showErrorMessageFor('required')"><span class="error" ng-show="{{formName}}.{{fieldId}}.$error.required">[[field.validation.required.message || 'Please enter a value!']]</span></div>
-        -->
     </div>
 </template>

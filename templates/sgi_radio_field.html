@@ -1,7 +1,7 @@
 <template name="sgiRadioField">
     <div class="form-group">
-        <label for="[[modelId]]">[[field.label]]</label>
-            <div class="radio-group sgi-tooltip" ng-class="{vertical: field.template.orientation}" title="[[field.message]]">
+        <label for="{{modelId}}">[[field.label]]</label>
+            <div class="radio-group sgi-tooltip {{orientation}}" title="[[field.message]]">
             {{#each collection}}
                 <sgi-radio-button ng-model="{{_modelId}}" name="{{_name}}" id="{{_id}}" value="{{_value}}" label="{{_label}}"></sgi-radio-button>
             {{/each}}

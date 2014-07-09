@@ -1,6 +1,5 @@
 <template name="sgiTextField">
     <div class="form-group" ng-class="{inline: field.inline}" >
-
         {{#if shouldShowLabel}}
         <label for="[[field.fieldId]]">
             [[field.label]]
@@ -10,17 +9,17 @@
             <span class="input-group-addon" ng-if="field.prefix">
                 [[field.prefix]]
             </span>
-            <input type="[[field.type]]"  class="form-control" name="[[field.fieldId]]" placeholder="[[field.placeholder]]" ng-maxlength="[[field.validation.max.value]]" ng-minlength="[[field.validation.min.value]]" ng-pattern="[[field.validation.pattern.value]]" ng-required="[[field.validation.required.value]]" title="[[field.message]]" >
+            <input type="{{type}}" ng-model="{{modelId}}" class="form-control" name="{{fieldId}}" placeholder="[[field.placeholder]]" ng-maxlength="[[field.validation.max.value]]" ng-minlength="[[field.validation.min.value]]" ng-pattern="[[field.validation.pattern.value]]" ng-required="[[field.validation.required.value]]" min="{{field.min}}" max="{{field.max}}" title="[[field.message]]" >
             <span class="input-group-addon" ng-if="field.suffix">
                 [[field.suffix]]
             </span>
         </div>
-    <!--    <div class="error" ng-if="field.validation.required.value"><span class="error" nag-show="{{formName}}.{{fieldId}}.$dirty && {{formName}}.{{fieldId}}.$error.required">[[field.validation.required.message || 'Please enter a value!']]</span></div>
-        <div class="error" ng-if="field.validation.min.value"><span class="error" nag-show="{{formName}}.{{fieldId}}.$dirty && {{formName}}.{{fieldId}}.$error.minlength">[[field.validation.min.message || 'Too short!']]</span></div>
-        <div class="error" ng-if="field.validation.max.value"><span class="error" nag-show="{{formName}}.{{fieldId}}.$dirty && {{formName}}.{{fieldId}}.$error.maxlength">[[field.validation.max.message || 'Too long!']]</span></div>
-        <div class="error" ng-if="field.validation.pattern.value"><span class="error" nag-show="{{formName}}.{{fieldId}}.$error.pattern">[[field.validation.pattern.message || 'Wrong pattern!']]</span></div>
-        <div class="error" ng-if="field.type == 'email' || (_.isArray(field.type) && field.type[0] == 'email')"><span class="error" nag-show="{{formName}}.{{fieldId}}.$error.email">[[field.validation.email.message || 'Invalid Email!']]</span></div>
-        <div class="c-message" ng-if="field.message" nag-show="{{formName}}.{{fieldId}}.$dirty && {{formName}}.{{fieldId}}.$invalid">[[field.message]]</div> -->
+        <div class="error" ng-if="field.validation.required.value"><span class="error" ng-show="{{formName}}.{{fieldId}}.$dirty && {{formName}}.{{fieldId}}.$error.required">[[field.validation.required.message || 'Please enter a value!']]</span></div>
+        <div class="error" ng-if="field.validation.min.value"><span class="error" ng-show="{{formName}}.{{fieldId}}.$dirty && {{formName}}.{{fieldId}}.$error.minlength">[[field.validation.min.message || 'Too short!']]</span></div>
+        <div class="error" ng-if="field.validation.max.value"><span class="error" ng-show="{{formName}}.{{fieldId}}.$dirty && {{formName}}.{{fieldId}}.$error.maxlength">[[field.validation.max.message || 'Too long!']]</span></div>
+        <div class="error" ng-if="field.validation.pattern.value"><span class="error" ng-show="{{formName}}.{{fieldId}}.$error.pattern">[[field.validation.pattern.message || 'Wrong pattern!']]</span></div>
+        <div class="error" ng-if="field.type == 'email' || (_.isArray(field.type) && field.type[0] == 'email')"><span class="error" ng-show="{{formName}}.{{fieldId}}.$error.email">[[field.validation.email.message || 'Invalid Email!']]</span></div>
+        <div class="c-message" ng-if="field.message" ng-show="{{formName}}.{{fieldId}}.$dirty && {{formName}}.{{fieldId}}.$invalid">[[field.message]]</div>
     </div>
 </template>
 
