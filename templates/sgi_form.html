@@ -1,8 +1,8 @@
-<template name="sgiForm">
+<template name="sgiForm">{{mainform}}
     <div ng-controller="{{ngController}}">
         <ng-form name="{{name}}" class="{{class}}">
             <div class="form-inline">
-                {{{contents}}}
+                {{> UI.contentBlock}}
             </div>
             {{#if mainform}}
                 {{> sgiFormButtons }}

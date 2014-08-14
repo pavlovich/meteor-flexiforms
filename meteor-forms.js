@@ -802,50 +802,50 @@ ngMeteorForms
  * The 'sgiField' directive replaces 'sgi-field' elements with an appropriate input-type field based on the field
  * definition specified by the value of the 'data-id' attribute of this HTML element.
  */
-    .directive('sgiField', ['$compile', function ($compile) {
-        return {
-            restrict: 'E',
-            scope: true,
-            controller: ['$scope', sgiFieldController],
-            compile: sgiFieldCompile
-        };
-    }])
+//    .directive('sgiField', ['$compile', function ($compile) {
+//        return {
+//            restrict: 'E',
+//            scope: true,
+//            controller: ['$scope', sgiFieldController],
+//            compile: sgiFieldCompile
+//        };
+//    }])
 /**
  * The 'sgiAutoform' directive replaces the 'sgi-autoform' element with a fully functional input/edit form based on
  * the model specified by the flexispec whose name matches the value of the 'model' attribute of this HTML element.
  */
-    .directive('sgiAutoform', ['$compile', function ($compile) {
-        return {
-            restrict: 'E',
-            scope: true,
-            controller: ['$scope', sgiAutoformController],
-            compile: sgiAutoformCompile
-        }
-    }])
-    .directive('sgiMaxcount', function (){
-        return {
-            restrict: 'A',
-            require: 'ngModel',
-            link: ['$scope', function(scope, elem, attr, ngModel) {
-                if(attr.sgiMaxcount) {
-
-                    //For DOM -> model validation
-                    ngModel.$parsers.unshift(function (value) {
-                        var valid = attr.sgiMaxCount < value.length;
-                        ngModel.$setValidity('sgiMaxCount', valid);
-                        return valid ? value : value;
-                    });
-
-                    //For model -> DOM validation
-                    ngModel.$formatters.unshift(function (value) {
-                        ngModel.$setValidity('sgiMaxCount', attr.sgiMaxCount < value.length);
-                        return value;
-                    });
-                }
-
-            }]
-        }
-    });
+//    .directive('sgiAutoform', ['$compile', function ($compile) {
+//        return {
+//            restrict: 'E',
+//            scope: true,
+//            controller: ['$scope', sgiAutoformController],
+//            compile: sgiAutoformCompile
+//        }
+//    }])
+//    .directive('sgiMaxcount', function (){
+//        return {
+//            restrict: 'A',
+//            require: 'ngModel',
+//            link: ['$scope', function(scope, elem, attr, ngModel) {
+//                if(attr.sgiMaxcount) {
+//
+//                    //For DOM -> model validation
+//                    ngModel.$parsers.unshift(function (value) {
+//                        var valid = attr.sgiMaxCount < value.length;
+//                        ngModel.$setValidity('sgiMaxCount', valid);
+//                        return valid ? value : value;
+//                    });
+//
+//                    //For model -> DOM validation
+//                    ngModel.$formatters.unshift(function (value) {
+//                        ngModel.$setValidity('sgiMaxCount', attr.sgiMaxCount < value.length);
+//                        return value;
+//                    });
+//                }
+//
+//            }]
+//        }
+//    });
 
 
 

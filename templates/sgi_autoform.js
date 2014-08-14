@@ -62,7 +62,7 @@ var hasController = function(element){
 };
 
 var _getModelFields = function(modelName){
-    var type = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: modelName});
+    var type = FlexiSpecs.findOne({name: modelName});
     var fieldsObject = type.fields;
     var fields = [];
     _.each(fieldsObject, function (fieldSpec, fieldName) {
@@ -80,11 +80,30 @@ var _getModelFields = function(modelName){
  * Define spacebars helpers for the Autoform template.
  */
 Package.templating.Template['sgiAutoform'].helpers({
+
+    getDataX: function(a, b, c, d){
+      var res = {};
+
+      //  var context = createNonFieldContext(element, attrs);
+      //  var modelNameString = attrs['model'] ? (_.capitalize(attrs['model']) + " ") : "";
+      //  context.formTitle = "New " + modelNameString + "Information";
+      //  return context;
+
+      res.name="myName"; // "{{getFormName getElement}}";
+      res.novalidate="";
+      res.mainform="myMainForm"; //"{{model}}";
+      res.class="myClass"; //"{{getFormClass getElement}}";
+      res.ngController="personController"; // "{{getControllerName getElement}}";
+
+      return res;
+
+    },
+
     getFieldFields: function(fieldName, unwrapped){
         var origField = getField(fieldName);
         if(origField && origField.type && _.isArray(origField.type)){
             var origType = origField.type[0];
-            var containedType = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: origType});
+            var containedType = FlexiSpecs.findOne({name: origType});
             if(containedType){
                 return _getModelFields(origType);
             }else{
