@@ -7,7 +7,7 @@ Package.on_use(function (api) {
     api.use('templating', 'client');
     api.use('stylus', 'client');
     api.use('underscore-string-latest', 'client');
-    api.use('ngMeteor', ['client']);
+    api.use('ng-meteor', ['client']);
     api.use('meteor-fleximodel', ['client', 'server']);
     api.use('meteor-ng-datepicker', 'client');
 
