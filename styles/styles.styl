@@ -7,6 +7,7 @@
 
 div.sgi-auto-form {
 
+
   div.radio-group {
     width: 100% !important;
     input {
@@ -20,6 +21,15 @@ div.sgi-auto-form {
   .input-group {
     width: 100% !important;
     border-radius: 4px !important;
+
+    input {
+      &:focus {
+        background-color: inherit;
+      }
+        &.ng-invalid{
+          background-color: lightpink;
+        }
+    }
   }
 
   .form-group {
@@ -197,20 +207,26 @@ div.sgi-auto-form {
         }
 
         &.invalid {
-          border: 5px solid red !important;
+          border: 2px solid red !important;
           padding: 2px;
         }
 
+        &.sgi-collection-selection-item-row{
+          position: relative;
+          height: 30px;
+        }
+
         &.sgi-collection-selection-item-remove-button{
-          margin: 2px;
           font-weight: bold;
           color: darkred;
           border: 2px solid darkred;
-          position: relative;
-          margin-top: -29px;
-          float: right;
-          margin-right: -5px;
+          position: absolute !important;
+          float: none;
           padding: 4px;
+          right: -1.5px;
+          top: -1.5px;
+          margin: 0px;
+          height: 29.5px;
         }
       }
 

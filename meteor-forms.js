@@ -211,7 +211,7 @@ ngMeteorForms.errorTypes = {
     'minlength': ['text', 'textarea', 'integer', 'float', 'url', 'email'],
     'maxlength': ['text', 'textarea', 'integer', 'float', 'url', 'email'],
     'pattern': ['text', 'textarea', 'integer', 'float', 'url', 'email']
-}
+};
 
 ////////////////////////////////////////////////////////////////////
 /**
@@ -995,7 +995,7 @@ Package.meteor.Meteor.startup(function(){
 
     radioButton.createContext = function(element, attrs){
         return owl.deepCopy(attrs);
-    }
+    };
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

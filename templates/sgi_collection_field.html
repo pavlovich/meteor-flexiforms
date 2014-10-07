@@ -5,20 +5,23 @@
                 <div class="sgi-collection-add-button">
                     <button ng-click="addModel(collection, $event)">+</button>
                 </div>
+                <div>Click the '+' to add a new one</div>
                 <div ng-show="hasAvailableCollection(collection)" class="sgi-collection-selection-list">
+
                     <div class="collection-selection-row" ng-repeat="item in collection">
-                        <div class="span12" ng-class="{selected: isSelectedRow($index), invalid: isInvalidRow($index)}" ng-click="switchModel($index, $event)"><div class="span11">[[getDisplayString(item, false, $index, myIndex)]]</div><div ng-click="removeModel($index)" class="span1 sgi-collection-selection-item-remove-button">x</div></div>
+                        <div class="span12 sgi-collection-selection-item-row" ng-class="{selected: isSelectedRow($index), invalid: isInvalidRow($index)}" ng-click="switchModel($index, $event)"><div class="span11">[[getDisplayString(item, false, $index, myIndex)]]</div><div ng-click="removeModel($index)" class="span1 sgi-collection-selection-item-remove-button">X</div></div>
                     </div>
                 </div>
             </div>
 
-            <hr>
-            <div class="sgi-new-model">
+            <hr ng-if="collection.length">
+            <div class="sgi-new-model" ng-show="collection.length">
                 <div ng-show="myIndex != null">
                     <sgi-autoform class="sgi-collection-field-new-model" field="{{id}}" unwrapped="true"></sgi-autoform>
                 </div>
 
-                <div ng-show="myIndex == null">Click an item in the list above to edit</div>
+                <div ng-show="myIndex == null && collection.length">Click an item in the list above to edit</div>
+
             </div>
             <div class="error" ng-if="field.validation.minCount.value"><span class="error" ng-show="{{formName}}.{{fieldId}}.$dirty && {{formName}}.{{fieldId}}.$error.sgiMincount">[[field.validation.minCount.message || 'Too few!']]</span></div>
             <div class="error" ng-if="field.validation.maxCount.value"><span class="error" ng-show="{{formName}}.{{fieldId}}.$dirty && {{formName}}.{{fieldId}}.$error.sgiMaxcount">[[field.validation.maxCount.message || 'Too many!']]</span></div>
