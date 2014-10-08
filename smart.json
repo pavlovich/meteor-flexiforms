@@ -13,7 +13,7 @@
         },
         "ng-meteor": {
             "git": "git://github.com/pavlovich/ng-meteor.git",
-            "branch": "angular-driven"
+            "branch": "master"
         },
         "meteor-ng-datepicker": {
             "git": "git://github.com/pavlovich/meteor-ng-datepicker.git",
