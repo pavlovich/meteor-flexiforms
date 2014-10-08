@@ -401,8 +401,17 @@ var getSgiElementTemplate = function(element, attrs){
 var expandElement = function(element, attrs) {
     var template = getSgiElementTemplate(element, attrs);
     var context = template.createContext(element, attrs);
-    var result = ngMeteor.renderTemplateInContext(template, context);
-    element.replaceWith(result);
+
+    var theElement = element[0];
+
+    var theParent = theElement.parentNode;
+
+    if(theParent) {
+        Blaze.renderWithData(template, context, theParent, theElement);
+
+        element.remove();
+    }
+
 };
 
 /**
@@ -719,7 +728,7 @@ var sgiFieldController = function($scope){
 var sgiFieldPreLink = function preLink(scope, iElement, iAttrs, controller) {
     scope.xid = iAttrs.id;
     scope.modelId = getModelId(iAttrs.id);
-    var comp = Deps.nonreactive(function(){
+    var comp = Deps.autorun(function(){
         if(!scope.$$phase) {
             scope.$apply(function () {
                 updateScope(scope, iElement, iAttrs);
@@ -775,7 +784,7 @@ var sgiAutoformController = function($scope){
 };
 
 var sgiAutoformPreLink = function preLink(scope, iElement, iAttrs, controller){
-    var comp = Deps.nonreactive(function(){
+    var comp = Deps.autorun(function(){
         scope.flexiModelname = iAttrs['model'];
         scope.unwrapped = iAttrs['unwrapped'];
         if(scope.unwrapped){

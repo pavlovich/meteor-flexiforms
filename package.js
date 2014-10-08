@@ -3,7 +3,7 @@ Package.describe({
 });
 
 Package.on_use(function (api) {
-
+    api.use('blaze', 'client');
     api.use('templating', 'client');
     api.use('stylus', 'client');
     api.use('underscore-string-latest', 'client');
