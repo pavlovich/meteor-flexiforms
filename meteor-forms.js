@@ -403,15 +403,12 @@ var expandElement = function(element, attrs) {
     var context = template.createContext(element, attrs);
 
     var theElement = element[0];
-
     var theParent = theElement.parentNode;
 
     if(theParent) {
         Blaze.renderWithData(template, context, theParent, theElement);
-
         element.remove();
     }
-
 };
 
 /**
