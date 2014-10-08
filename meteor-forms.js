@@ -556,12 +556,14 @@ var getFieldAsContextObject = function(element, attrs){
         field.fieldId = attrs.id.replace(/\./g,'');
         field.inline = attrs.inline;
         field.showLabel = (field.inline || field.unwrapped) ? false : true;
-        var attributeString = "";
-
     }else{
         console.log("unable to find field with id: " + modelId);
     }
+    if(field.options && field.options.collection){
+        field.options.label = field.options.label ? field.options.label : 'label';
+        field.options.value = field.options.value ? field.options.value : 'value';
 
+    }
     return field;
 };
 
