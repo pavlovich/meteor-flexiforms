@@ -13,6 +13,9 @@ Package.on_use(function (api) {
 
     // Files to load in Client only.
     api.add_files([
+        'lib/extensions/string.js',
+        'lib/collections/flexispec.js',
+        'lib/angular/modules.js',
         'styles/styles.styl',
         'templates/sgi_form.html',
         'templates/sgi_field.html',

@@ -4,23 +4,15 @@
 
 ////////////////////////////////////////////////////////////////////
 /**
- * Base type prototype additions
- */
-////////////////////////////////////////////////////////////////////
-
-String.prototype.toCamel = function(){
-    return this.replace(/(\-[a-z])/g, function($1){return $1.toUpperCase().replace('-','');});
-};
-
-////////////////////////////////////////////////////////////////////
-/**
  * Configure Mongo Collections
  */
 ////////////////////////////////////////////////////////////////////
 
 /**
- * Register a transformation on the mongo collection named FlexiSpecs which, when applied, updates the passed flexispec
- * by adding the 'getTemplate' function to each of its fields and then returns the modified flexispec.
+ * Register a transformation callback on the mongo collection named FlexiSpecs which, when applied,
+ * updates the <doc> (expected to be an instance of a flexispec) by adding the 'getTemplate' instance function to each
+ * of its the objects in its fields attribute (supposedly containing a collection of field objects).
+ * Returns the modified <doc> flexispec object.
  */
 FlexiSpecs._transform = function(doc){
     if (doc.fields && _.isArray(doc.fields)) {
@@ -29,188 +21,6 @@ FlexiSpecs._transform = function(doc){
         });
     }
     return doc;
-};
-
-////////////////////////////////////////////////////////////////////
-/**
- * Register angular modules and associated registries.
- */
-////////////////////////////////////////////////////////////////////
-
-/**
- * Create an angular module named 'ngMeteorFleximodel' which injects the 'ngMeteor' module as a dependency and which
- * will expose an Angular-aware collection which wraps the FlexiSpecs mongo collection.
- */
-ngMeteorFleximodel =
-    angular.module('ngMeteorFleximodel', ['ngMeteor'])
-        .run(['$rootScope', function($rootScope){
-          //  $collection('FlexiSpecs', $rootScope);
-        }]);
-
-/**
- * Create an angular module named 'ngMeteorForms' on which we will hang all of our directives
- * and from which meteor-forms users will derive their own controllers when user-defined controllers are needed.
- * Inject the angularized Fleximodel module as a dependency. I doubt this is even needed so we may just dump this prior
- * to general release of this package.
- */
-ngMeteorForms = angular.module('ngMeteorForms', ['ngMeteorFleximodel']);
-
-/**
- * Provide an initially empty hash to be used by framework users to register their own templates to be used in place
- * of the framework-provided ones. This 'substitution' of user-provided templates for 'stock' templates allows users
- * to provide their own rendering templates for any or all of the field types. To use, simply add an entry to this
- * registry hash in which the key is the 'stock' template name (meteor/spacebars template name) and the value is the
- * meteor/handlebars template name which you wish to have used in place of the stock template. Note that you can also,
- * of course, create angular directives which can manipulate the elements which you 'generate' or provide as the
- * contents of your template. The stock directives and templates act as examples for your reference.
- */
-ngMeteorForms.templateRegistry = {};
-
-ngMeteorForms.useReactiveQueries = true;
-
-ngMeteorForms.meteorFindOne = function(collection, query, reactive){
-    var theQuery = (typeof query == 'undefined') ? {} : query;
-    var isReactiveQuery = (typeof reactive == 'undefined') ? ngMeteorForms.useReactiveQueries : reactive;
-    return ngMeteorForms.meteorFind(collection, theQuery, true, isReactiveQuery);
-};
-
-
-ngMeteorForms.meteorFind = function(collection, query, single, reactive){
-    var result = null;
-
-        var findSingle = (typeof single == 'undefined') ? false : single;
-        var theQuery = (typeof query == 'undefined') ? {} : query;
-        var isReactiveQuery = (typeof reactive == 'undefined') ? ngMeteorForms.useReactiveQueries : reactive;
-        if(findSingle){
-            result = collection.findOne(query, {reactive: isReactiveQuery});
-        }else {
-            result = collection.find(theQuery, {reactive: isReactiveQuery});
-        }
-
-
-    return result;
-}
-
-/**
- * Return the size of the collection which should be used to populate the selection options for the
- * single or multi-selection control specified by the supplied <field>.
- */
-var _getCollectionSize = function(field){
-    var collectionSize = 0;
-    if(field.options.collectionName && typeof field.options.collectionName === 'string'){
-        var collection = FlexiModels[field.options.collectionName];
-        if(collection && typeof collection.find === "function"){
-            collectionSize = ngMeteorForms.meteorFind(collection).count();
-        }else{
-            collection = getGlobal(field.options.collectionName);
-            if(collection && typeof collection.find === 'function'){
-                collectionSize = ngMeteorForms.meteorFind(collection).count();
-            }
-        }
-    }else{
-        if(field.options.collection &&  _.isArray(field.options.collection)){
-            collectionSize = field.options.collection.length;
-        }
-    }
-    return collectionSize;
-};
-
-var _setValueOfPath = function(obj, path, value, overwrite){
-    var result = value;
-    var pathComponents = path.split('.');
-    _.reduce(pathComponents,
-        function(memo, key){
-            if(this == key){
-                if(memo[key]){
-                    if(overwrite){
-                        memo[key] = value;
-                    }
-                    result = memo[key];
-                    return result;
-                }
-                memo[key] = value;
-                return value;
-            }else{
-                if(memo[key]){
-                    return memo[key]
-                }else{
-                    memo[key] = {};
-                    return memo[key]
-                }
-            }
-        }, obj, _.last(pathComponents));
-
-    return result;
-};
-
-/**
- * Define a registry hash which maps the 'type' of a fleximodel field to an 'input' element's 'type' attribute value.
- * This value will be used to set the value of the type attribute assigned to the 'input' element generated for the given field.
- * In the case that the 'value' is actually a function, the field spec will be passed in to the function as 'this' and
- * it is expected that the function will return a string which will then be used as the value of the 'type' attribute
- * for the generated input element.
- */
-ngMeteorForms.templateMapping = {
-    'collection': 'collection',
-    'date': 'datepicker',
-    'daterange': 'daterange',
-    'date': 'date',
-    'datesingle': 'datesingle',
-    'text': 'text',
-    'boolean': 'checkbox',
-    'email': 'email',
-    'phone': 'phone',
-    'time': 'time',
-    'datetime': 'dateTimeLocal',
-    'url': 'url',
-    'number': 'number',
-    'integer': 'number',
-    'float': 'number',
-    'single': function(){
-        var field = this;
-        var result = 'select';
-        if(field.options){
-            var collectionSize = _getCollectionSize(field);
-
-            if(collectionSize > 1){
-                result = "radio";
-            }
-            if(collectionSize > 5){
-                result = "select";
-            }
-        }
-        if(field.widgetType){
-            return field.widgetType;
-        }
-        return result;
-    },
-    'multi': function(field){
-        var collectionSize = _getCollectionSize(field);
-        var result = 'checkbox';
-        if(collectionSize > 5){
-            result = "select";
-        }
-        return result;
-    }
-};
-
-/**
- * Define a registry hash which maps the types of 'automated' error messages that can be added by angular to arrays of
- * input element types. This is used during field element replacement/generation when deciding which error message divs
- * to add for a given field definition. If the field type is lised in the value array for a given error type, then,
- * provided the field itself provides a suitable 'limit' or 'pattern' value for that restriction type, an error div
- * with an appropriate error message will be added to the dom. That div will be shown only when the given constraint
- * is violated.
- *
- * TODO ensure this actually is being honored in the generated code.
- */
-ngMeteorForms.errorTypes = {
-    'max': ['date', 'time', 'datetime', 'integer', 'float'],
-    'min': ['date', 'time', 'datetime', 'integer', 'float'],
-    'required': ['text', 'textarea', 'date', 'time', 'datetime', 'integer', 'float'],
-    'minlength': ['text', 'textarea', 'integer', 'float', 'url', 'email'],
-    'maxlength': ['text', 'textarea', 'integer', 'float', 'url', 'email'],
-    'pattern': ['text', 'textarea', 'integer', 'float', 'url', 'email']
 };
 
 ////////////////////////////////////////////////////////////////////
@@ -438,22 +248,61 @@ var setField = function(scope, attributes){
         theField.type = theField.type[0];
     }
     scope.field = theField;
+    return theField;
+};
+
+/**
+ * For the given object, <obj>, follow down the supplied <path> (a dot-separated chain of attributes names). When reaching
+ * the end of that chain, if <overwrite> is true, set the attribute's value to <value>. Otherwise, check to see if a
+ * value already has been set there. If so, do nothing. Otherwise, set the attribute's value to <value>.
+ * @param obj The base object on which to set an attribute's value
+ * @param path The path or chain of attribute names as a dot-separated list which leads to the attribute whose value you wish to set.
+ * @param value The value to set for the attribute.
+ * @param overwrite If true, set the value for the attribute regardless of whether a value has already been set. If false, only set a value if one has not been already set.
+ * @returns The resulting value stored in the attribute in question (could be the previously set value or the newly provided one depending on options. Could be null.
+ */
+var _setValueOfPath = function(obj, path, value, overwrite){
+    var result = value;
+    var pathComponents = path.split('.');
+    _.reduce(pathComponents,
+        function(memo, key){
+            if(this == key){
+                if(memo[key]){
+                    if(overwrite){
+                        memo[key] = value;
+                    }
+                    result = memo[key];
+                    return result;
+                }
+                memo[key] = value;
+                return value;
+            }else{
+                if(memo[key]){
+                    return memo[key]
+                }else{
+                    memo[key] = {};
+                    return memo[key]
+                }
+            }
+        }, obj, _.last(pathComponents));
+
+    return result;
 };
 
 /**
  * Update the provided scope with the field and other options as determined by interpreting the supplied element and attributes.
  */
 var updateScope = function(scope, element, attributes){
-    //TODO remove this if we really don't need it ... doesn't appear, at present, to be necessary. ::: setFormName(scope, element);
-    setField(scope, attributes);
 
-    var field = scope.field;
+    //TODO remove this if we really don't need it ... doesn't appear, at present, to be necessary. ::: setFormName(scope, element);
+
+    var field = setField(scope, attributes);
 
     if(_.isNull(field) || _.isUndefined(field)){
         // No field associated with a non-data-oriented element (like a DIV). Do nothing to the scope.
+        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  should not get here")
     }else {
-
-        if(field.type && _.isArray(field.type)){
+        if(_.isArray(field.type)){
             if(ngMeteorForms.meteorFindOne(FlexiSpecs, {name: field.type[0]})){
                 scope.collection = _setValueOfPath(scope, getModelId(attributes.id), [], false);
                 scope.myIndex = null;
@@ -466,9 +315,7 @@ var updateScope = function(scope, element, attributes){
                 scope.myIndex = null;
                 scope.singleMode = true;
             }
-        };
-
-        if (field.type && _.contains(['single', 'multi'], field.type)) {
+        }else if (_.contains(['single', 'multi'], field.type)) {
             if (field.options && field.options.collectionName && typeof field.options.collectionName === 'string') {
 
                 var collection = FlexiModels[field.options.collectionName];
@@ -477,7 +324,6 @@ var updateScope = function(scope, element, attributes){
                     if (!(field.options && typeof field.options === 'object')) {
                         field.options = {};
                     }
-                    ;
                     field.options.collection = ngMeteorForms.meteorFind(collection).fetch();
                 } else {
                     //Else, see if it is the name of a global collection
@@ -487,15 +333,14 @@ var updateScope = function(scope, element, attributes){
                         if (!(field.options && typeof field.options === 'object')) {
                             field.options = {};
                         }
-                        ;
                         field.options.collection = ngMeteorForms.meteorFind(meteorCollection).fetch();
                     }
                 }
             }
         }
 
-        if (scope.field && scope.field.options) {
-            scope.options = scope.field.options.collection;
+        if (field.options) {
+            scope.options = field.options.collection;
         }
     }
 };
@@ -512,7 +357,7 @@ var getGlobal = function(globalName){
     }
     var result = self[globalName];
     return result ? result : undefined;
-}
+};
 
 /**
  * Return a new base context which is the starting point for all contexts used by the framework when rendering meteor
@@ -567,11 +412,19 @@ var getFieldAsContextObject = function(element, attrs){
     return field;
 };
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var getTemplateForFieldTypeName = function(fieldTypeName){
+    var template = null;
+    if(fieldTypeName) {
+        var sgiTemplateKey = 'sgi' + _.capitalize(fieldTypeName) + 'Field';
+        template = getTemplateForKey(sgiTemplateKey);
+    }
+
+    return template ? template : getTemplateForKey('sgiTextField');
+};
+
 /**
- * Define angular directives to handle the replacement of template elements with their expanded, re-rendered contents.
+ * Define compile pre-link and controller functions for sgiField directive
  */
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var sgiFieldController = function($scope){
 
@@ -644,9 +497,9 @@ var sgiFieldController = function($scope){
         }
     };
     $scope.setSelectedIndex = function(index){
-       // self.$apply(function(){
-            self.myIndex = index;
-       // });
+        // self.$apply(function(){
+        self.myIndex = index;
+        // });
     };
     $scope.switchModel = function(index, $event){
         var formScope = angular.element($($event.currentTarget).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
@@ -717,7 +570,7 @@ var sgiFieldController = function($scope){
         }
         if (index == selectedIndex) {
             if(myItem)
-            return "Please enter some data ..."
+                return "Please enter some data ..."
         } else {
             return "New entry! Please select to add some data!";
         }
@@ -739,7 +592,7 @@ var sgiFieldPreLink = function preLink(scope, iElement, iAttrs, controller) {
 
     scope.$on('$destroy', function(){
         comp.stop();
-    })
+    });
 };
 
 var sgiFieldCompile = function compile(element, attrs) {
@@ -749,61 +602,11 @@ var sgiFieldCompile = function compile(element, attrs) {
     }
 };
 
-var sgiAutoformController = function($scope){
-    var self = $scope;
-
-    $scope.getModel = function(){
-        return this.model;
-    };
-    $scope.setModel = function(value){
-        self.model = value;
-    };
-
-    $scope.save = function(){
-        this.preSave();
-        console.log("Built-in Save happening now!");
-        var baseObj = this.getModel();
-        var baseSpec = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: this.flexiModelname});
-        var converted = FlexiSpecs.convert(baseObj, baseSpec);
-        //TODO have to validate yet.
-        FlexiModels[this.flexiModelname].insert(converted);
-        console.log("Built-in Save complete.")
-        this.postSave();
-    };
-    $scope.preSave = function(){
-        console.log('preSave from internal controller');
-    };
-    $scope.postSave = function(){
-        console.log('postSave from internal controller');
-    };
-
-    if(!$scope.model) {
-        $scope.setModel({})
-    }
-};
-
-var sgiAutoformPreLink = function preLink(scope, iElement, iAttrs, controller){
-    var comp = Deps.autorun(function(){
-        scope.flexiModelname = iAttrs['model'];
-        scope.unwrapped = iAttrs['unwrapped'];
-        if(scope.unwrapped){
-            if(scope.singleMode){
-                scope.model = scope.collection;
-            }
-        }
-    });
-
-    scope.$on('$destroy', function(){
-        comp.stop();
-    });
-};
-
-var sgiAutoformCompile = function compile(element, attrs){
-    expandElement(element, attrs);
-    return {
-        pre: sgiAutoformPreLink
-    }
-};
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Define angular directives to handle the replacement of template elements with their expanded, re-rendered contents.
+ */
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ngMeteorForms
 /**
@@ -817,18 +620,6 @@ ngMeteorForms
             controller: ['$scope', sgiFieldController],
             compile: sgiFieldCompile
         };
-    }])
-/**
- * The 'sgiAutoform' directive replaces the 'sgi-autoform' element with a fully functional input/edit form based on
- * the model specified by the flexispec whose name matches the value of the 'model' attribute of this HTML element.
- */
-    .directive('sgiAutoform', ['$compile', function ($compile) {
-        return {
-            restrict: 'E',
-            scope: true,
-            controller: ['$scope', sgiAutoformController],
-            compile: sgiAutoformCompile
-        }
     }])
     .directive('sgiMaxcount', function (){
         return {
@@ -875,13 +666,11 @@ Package.meteor.Meteor.startup(function(){
     var otherSgiTemplateNames = [];
 
     for(key in Package.templating.Template){
-        if(Package.templating.Template.hasOwnProperty(key)){
-            if(key.match('^(sgi).+')) {
-                if (key.match('^(sgi).*(Field)$')) {
-                    fieldTemplateNames.push(key);
-                } else {
-                    otherSgiTemplateNames.push(key);
-                }
+        if(key.match('^(sgi).+')) {
+            if (key.match('^(sgi).*(Field)$')) {
+                fieldTemplateNames.push(key);
+            } else {
+                otherSgiTemplateNames.push(key);
             }
         }
     };
@@ -898,25 +687,91 @@ Package.meteor.Meteor.startup(function(){
 
     var standardSgiTemplate = function(element, attrs){return this};
 
+
+    /**
+     * Define compile pre-link and controller functions for sgiAutoform directive
+     */
+
+    var sgiAutoformController = function($scope){
+        var self = $scope;
+
+        $scope.getModel = function(){
+            return this.model;
+        };
+        $scope.setModel = function(value){
+            self.model = value;
+        };
+
+        $scope.save = function(){
+            this.preSave();
+            console.log("Built-in Save happening now!");
+            var baseObj = this.getModel();
+            var baseSpec = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: this.flexiModelname});
+            var converted = FlexiSpecs.convert(baseObj, baseSpec);
+            //TODO have to validate yet.
+            FlexiModels[this.flexiModelname].insert(converted);
+            console.log("Built-in Save complete.")
+            this.postSave();
+        };
+        $scope.preSave = function(){
+            console.log('preSave from internal controller');
+        };
+        $scope.postSave = function(){
+            console.log('postSave from internal controller');
+        };
+
+        if(!$scope.model) {
+            $scope.setModel({})
+        }
+    };
+
+    var sgiAutoformPreLink = function preLink(scope, iElement, iAttrs, controller){
+        var comp = Deps.autorun(function(){
+            scope.flexiModelname = iAttrs['model'];
+            scope.unwrapped = iAttrs['unwrapped'];
+            if(scope.unwrapped){
+                if(scope.singleMode){
+                    scope.model = scope.collection;
+                }
+            }
+        });
+
+        scope.$on('$destroy', function(){
+            comp.stop();
+        });
+    };
+
+    var sgiAutoformCompile = function compile(element, attrs){
+        expandElement(element, attrs);
+        return {
+            pre: sgiAutoformPreLink
+        }
+    };
+
+
     /**
      * For each non-field-oriented template, define a directive for that template which simply replaces the corresponding
      * elements with the results of rendering that template in an appropriate context. Also augment each of these templates
      * providing them with a createContext and a sgiTemplate function.
      */
     _.each(otherSgiTemplateNames, function(directiveName){
-        var directiveDefinitionWithScope = {
-            restrict: 'E',
-            scope: true,
-            compile: standardCompile
-        };
 
         var directiveDefinition = {
             restrict: 'E',
             compile: standardCompile
         };
 
-        var directiveDefinitionHolder = (directiveName == 'sgiAutoform') ? directiveDefinitionWithScope : directiveDefinition;
-        ngMeteorForms.directive(directiveName, function(){return directiveDefinitionHolder});
+        /**
+         * The 'sgiAutoform' directive replaces the 'sgi-autoform' element with a fully functional input/edit form based on
+         * the model specified by the flexispec whose name matches the value of the 'model' attribute of this HTML element.
+         */
+        if(directiveName == 'sgiAutoform'){
+            directiveDefinition.compile = sgiAutoformCompile;
+            directiveDefinition.controller = sgiAutoformController;
+            directiveDefinition.scope = true;
+        }
+
+        ngMeteorForms.directive(directiveName, function(){return directiveDefinition});
 
         var template = getTemplateForKey(directiveName);
         template.createContext = createNonFieldContext;
@@ -944,12 +799,14 @@ Package.meteor.Meteor.startup(function(){
     var sgiFieldSgiTemplate = function(element, attrs){
         var template = null;
         var context = this.createContext(element, attrs);
+        var templateName = null;
         if(context){
-            var templateName = context.getTemplateName();
-            sgiTemplateKey = 'sgi' + _.capitalize(templateName) + 'Field';
-            template = getTemplateForKey(sgiTemplateKey);
+            templateName = context.getTemplateName();
+          //  sgiTemplateKey = 'sgi' + _.capitalize(templateName) + 'Field';
+          //  template = getTemplateForKey(sgiTemplateKey);
         }
-        return template ? template : getTemplateForKey('sgiTextField');
+        return getTemplateForFieldTypeName(templateName);
+      //  return template ? template : getTemplateForKey('sgiTextField');
     };
 
     /**
