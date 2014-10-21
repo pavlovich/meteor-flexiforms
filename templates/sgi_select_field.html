@@ -11,6 +11,6 @@
                 <option value="" ng-if="field.message">[[field.message]]</option>
             </select>
         </div>
-        <div class="error" ng-if="showErrorMessageFor('required')"><span class="error" ng-show="{{formName}}.{{fieldId}}.$error.required">[[field.validation.required.message || 'Please enter a value!']]</span></div>
+        <div class="error" ng-if="showErrorMessageFor('required')"><span class="error" ng-show="{{formName}}.{{fieldId}}.$error.required && {{formName}}.{{fieldId}}.$dirty">[[field.validation.required.message || 'Please enter a value!']]</span></div>
     </div>
 </template>
