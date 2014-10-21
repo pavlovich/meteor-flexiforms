@@ -547,8 +547,23 @@ var sgiFieldController = function($scope){
 
         setFocusToNewCollectionModelFirstEntryField($event);
     };
-    $scope.getDisplayString = function(myItem, internal, index, selectedIndex, element) {
-        var result = "";
+    $scope.getDisplayString = function(myItem, internal, index, selectedIndex, identifier, field) {
+
+        var result = null;
+
+        var theIdentifier = identifier;
+        if (theIdentifier && ngMeteorForms.displayStringRegistry[theIdentifier] && typeof ngMeteorForms.displayStringRegistry[theIdentifier] == "function") {
+            result = (ngMeteorForms.displayStringRegistry[theIdentifier])(myItem);
+        } else {
+            if (field && _.isArray(field.type)) {
+                theIdentifier = field.type[0];
+                if (theIdentifier && ngMeteorForms.displayStringRegistry[theIdentifier] && typeof ngMeteorForms.displayStringRegistry[theIdentifier] == "function") {
+                    result = (ngMeteorForms.displayStringRegistry[theIdentifier])(myItem);
+                }
+            }
+        }
+
+        if(_.isNull(result)) {
             if (myItem && typeof myItem.toSgiDisplayString == 'function') {
                 result = myItem.toSgiDisplayString();
             } else {
@@ -575,6 +590,8 @@ var sgiFieldController = function($scope){
                     }
                     return memo;
                 }, "", this);
+
+            }
         }
         if (internal || (result && !_.isEmpty(result))) {
             return result;

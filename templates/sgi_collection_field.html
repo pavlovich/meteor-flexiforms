@@ -9,7 +9,7 @@
                 <div ng-show="hasAvailableCollection(collection)" class="sgi-collection-selection-list">
 
                     <div class="collection-selection-row" ng-repeat="item in collection">
-                        <div class="span12 sgi-collection-selection-item-row" ng-class="{selected: isSelectedRow($index), invalid: isInvalidRow($index)}" ng-click="switchModel($index, $event)"><div class="span11">[[getDisplayString(item, false, $index, myIndex)]]</div><div ng-click="removeModel($index)" class="span1 sgi-collection-selection-item-remove-button">X</div></div>
+                        <div class="span12 sgi-collection-selection-item-row" ng-class="{selected: isSelectedRow($index), invalid: isInvalidRow($index)}" ng-click="switchModel($index, $event)"><div class="span11">[[getDisplayString(item, false, $index, myIndex, "{{modelId}}", field)]]</div><div ng-click="removeModel($index)" class="span1 sgi-collection-selection-item-remove-button">X</div></div>
                     </div>
                 </div>
             </div>
