@@ -46,5 +46,6 @@ Package.on_use(function (api) {
     api.export('ngMeteorFleximodel', 'client');
     api.export('FastRender', ['client', 'server']);
     api.export('ngMeteor', 'client');
+    api.export('sprintf', ['client', 'server']);
 
 });
