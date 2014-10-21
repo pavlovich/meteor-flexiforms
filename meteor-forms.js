@@ -2,25 +2,17 @@
  * Created by pavlovich on 4/14/14.
  */
 
-////////////////////////////////////////////////////////////////////
-/**
- * Configure Mongo Collections
- */
-////////////////////////////////////////////////////////////////////
 
 /**
- * Register a transformation callback on the mongo collection named FlexiSpecs which, when applied,
- * updates the <doc> (expected to be an instance of a flexispec) by adding the 'getTemplate' instance function to each
- * of its the objects in its fields attribute (supposedly containing a collection of field objects).
- * Returns the modified <doc> flexispec object.
+ * Given a key representing the 'stock' name of a template (meteor/spacebars template, that is), check to see if the
+ * user of the framework has registered a 'replacement' template to use in place of the 'stock' one. If so, return
+ * the replacement template. Otherwise, return the corresponding stock template.
  */
-FlexiSpecs._transform = function(doc){
-    if (doc.fields && _.isArray(doc.fields)) {
-        _.each(doc.fields, function(field){
-            field.getTemplateName = fieldGetTemplate;
-        });
-    }
-    return doc;
+var getTemplateForKey = function(key){
+    var templateKey = ngMeteorForms.templateRegistry[key] ? ngMeteorForms.templateRegistry[key] : key;
+    var result = Package.templating.Template[templateKey];
+    // TODO :: Not sure why this is a to do? Maybe we need to externalize the error message? Dunno. :::  console.log("Couldn't find a template with name: '" + templateKey + "' which you indicated should override the framework template named '" + key + "'. Using the framework template as a fallback");
+    return result ? result : Package.templating.Template[key];
 };
 
 ////////////////////////////////////////////////////////////////////
@@ -30,18 +22,20 @@ FlexiSpecs._transform = function(doc){
 ////////////////////////////////////////////////////////////////////
 
 /**
- * Output a field group element if the current element has a 'type' which matches the name of a FlexiType document.
- * Otherwise, just output a field element.
+ * Register a helper function which returns the template to render for the element currently being processed.
+ * Specifically, return a field group template if the current element represents a nested model. This is indicated by
+ * the current element having a 'type' attribute value which matches the name of an existing FlexiType document.
+ * Otherwise, return a generic field element template.
  */
 Package.ui.UI.registerHelper("sgiAutoformElementTemplate", function () {
     var templateName = '_sgiAutoformField';
-    if(this && this.type && !_.isArray(this.type)){
+    if(!_.isArray(this.type)){
         var flexiSpec = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: this.type.toString()});
         if(flexiSpec){
             templateName = '_sgiAutoformFieldGroup';
         }
     }
-    return Package.templating.Template[templateName];
+    return getTemplateForKey(templateName);
 });
 
 /**
@@ -81,8 +75,9 @@ var fieldGetTemplate = function () {
             }
         }
     }
-    if (this.type && !_.isArray(this.type) && ngMeteorForms.templateMapping && this.type in ngMeteorForms.templateMapping) {
-        var result = ngMeteorForms.templateMapping[this.type];
+    var result = null;
+    if (!_.isArray(this.type)) {
+        result = ngMeteorForms.templateMapping[this.type];
         if (result) {
             if (typeof result == 'function') {
                 return result.call(this);
@@ -91,8 +86,15 @@ var fieldGetTemplate = function () {
             }
         }
     }else{
-        if(this.type && _.isArray(this.type)){
-            return ngMeteorForms.templateMapping['collection'];
+        if(_.isArray(this.type)){
+            result = ngMeteorForms.templateMapping['collection'];
+            if (result) {
+                if (typeof result == 'function') {
+                    return result.call(this);
+                } else {
+                    return result;
+                }
+            }
         }
     }
     return this.type ? this.type : null;
@@ -121,18 +123,6 @@ var getModelId = function(dataId) {
 };
 
 /**
- * Given a key representing the 'stock' name of a template (meteor/spacebars template, that is), check to see if the
- * user of the framework has registered a 'replacement' template to use in place of the 'stock' one. If so, return
- * the replacement template. Otherwise, return the corresponding stock template.
- */
-var getTemplateForKey = function(key){
-    var templateKey = ngMeteorForms.templateRegistry[key] ? ngMeteorForms.templateRegistry[key] : key;
-    var result = Package.templating.Template[templateKey];
-    // TODO :: Not sure why this is a to do? Maybe we need to externalize the error message? Dunno. :::  console.log("Couldn't find a template with name: '" + templateKey + "' which you indicated should override the framework template named '" + key + "'. Using the framework template as a fallback");
-    return result ? result : Package.templating.Template[key];
-};
-
-/**
  * Given a 'fieldId', such as 'person.address.region.zipCode' (from the comment to the 'getModelId' function defined above),
  * return the actual field specification by traversing the flexispecs implied by the components of that fieldId.
  *
@@ -151,66 +141,71 @@ getField = function (fieldId) {
             typeMap[this.name] = this;
         });
     var attributeMap = fieldId.split('.');
-    var typeName = attributeMap[0];
-    var type = {};
-    type.fields = {};
+    var typeName = _.first(attributeMap);
+    var type = {fields: {}};
     (type.fields)[typeName] = {type: typeName};
-    var counter = attributeMap.length - 1;
-    for (var i = 0; i < counter; i++) {
-        var attributeName = attributeMap[i];
+
+    _.each(_.initial(attributeMap), function(attributeName){
         typeName = (type.fields)[attributeName].type;
         type = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: typeName});
         if(!type){return null};
-    }
-    var field = (type.fields)[attributeMap[attributeMap.length - 1]];
+    });
+
+    var field = (type.fields)[_.last(attributeMap)];
     field.getTemplateName = fieldGetTemplate;
 
     return field;
 };
 
 /**
- * Return a template suitable to use in replacing the supplied element and attendant attributes.
+ * Return a template suitable to use in replacing the supplied <element> and accompanying <attributes>.
  *
  * In more detail, we take the supplied element and, since it is a jQuery-wrapped element, we extract the
  * 'real' element using 'element.context'. Next, we get the element's local name (which is just the name of the element
- * as it appears right after the '<' in the HTML notation for that element. We then convert that element name to
- * camel case (since it is most likely in x-y-z format). Now this is assumedly the 'stock' name of the desired template
- * to use to replace the element under consideration. We then check to see if the framework user has registered their
- * own template name to use in place of our 'stock' template name. This is done using the 'getTemplateForKey' function.
- * Next we check to see if the template we have arrived at thus far defines its own 'override' function (currently 'sgiTemplate' although TODO this needs to change.)
- * If so, we call that function passing the same arguments that we received and expecting this override function to
- * return the final template for use to use in replacing the current element. Otherwise, we just return the template
- * we had arrived that prior to this check.
+ * as it appears right after the '<' in the HTML notation for that element). We then convert that element name to
+ * camel case (since it is most likely in x-y-z format). This name is assumed to be the name of the default,
+ * package-provided template associated with the given element name. We then check to see if the package user has
+ * registered their own custom replacement template to use in place of our 'stock' template. This is done using the
+ * 'getTemplateForKey' function which checks the internal registry which maps standard element names to the name of the
+ * template to use when replacing those elements. Next we grab the template associated with whatever template name we
+ * have arrived at thus far. We then check to see if that template defines a method named 'sgiTemplate'. If so, it is
+ * assumed that this function will act as an 'override' function and we will call that function, passing the same
+ * arguments that we received as parameters to our own calling. We expect this override function to return the final
+ * template for use to use in replacing the current element. If no override function is defined for the arrived at
+ * template, we just return the template we had arrived at prior to this last check.
  *
  * Note that users of the framework can define the same 'override' function on their own templates which they register
- * as 'overrides' to the 'stock' templates. Their override functions will be called at this point just as they are called
- * with the 'stock' templates. This is used within the 'stock' framework templates to dynamically replace the 'stock'
- * field template with an appropriate specific template like 'radio' or 'date picker'
+ * as 'overrides' to their own 'stock' templates. Their override functions will be called at this point just as they are called
+ * with the package-supplied templates. This feature is used to allow users of the package to dynamically replace the 'stock'
+ * field template with a template of the package consumer's choice.
  */
-var getSgiElementTemplate = function(element, attrs){
+var getSgiElementTemplate = function(element, attributes){
     var templateName = element.context.localName.toCamel();
     var template = getTemplateForKey(templateName);
-    template = (template.sgiTemplate && typeof template.sgiTemplate == 'function') ? template.sgiTemplate(element, attrs) : template;
+    template = (template.sgiTemplate && typeof template.sgiTemplate == 'function') ? template.sgiTemplate(element, attributes) : template;
     return template;
 };
 
 /**
- * Replace the supplied element in the DOM with the result of fully rendering the template implied by the element and
- * the value of its attributes.
+ * Replace the supplied <element> in the DOM with the result of fully rendering the template which has been registered as
+ * the replacement for that supplied <element>, qualified, where appropriate, by the values of its <attributes>.
  *
- * In detail, we obtain the appropriate (meteor/spacebars) template, create an appropriate object to act as our context
- * and then render that template in the context of that object. Then we replace the element in the DOM with the result
- * of that rendering.
+ * In detail, we first obtain the appropriate (meteor/spacebars) template, then create an appropriate object to act as
+ * our context for the rendering of that template and then render that template in the context of that object.
+ * Then we replace the <element> in the DOM with the result of that rendering.
  *
  * Note that we say 'fully rendering' here because we don't simply render the template in the 'meteor way'.
  * We do that, but then the result of that initial meteor rendering is then evaluated by Angular which applies any
- * appropriate directives. Of course, applying those directives could result in additional DOM changes which call for
+ * appropriate directives or filters. Of course, applying those directives could result in additional DOM changes which call for
  * some of the new elements to be, in turn, replaced by further meteor template rendering the results of each of which
- * themselves will be processed by angular themselves possibly resulting in yet another round. And so on ...
+ * themselves will be processed by angular themselves possibly resulting in yet another round. And so on. Once all possible
+ * renderings by both meteor/spacebars as well as Angular have completed recursively, we add that final result into the
+ * DOM after the original <element> and then remove the original <element> from the DOM.
  */
-var expandElement = function(element, attrs) {
-    var template = getSgiElementTemplate(element, attrs);
-    var context = template.createContext(element, attrs);
+var expandElement = function(element, attributes) {
+
+    var template = getSgiElementTemplate(element, attributes);
+    var context = template.createContext(element, attributes);
 
     var theElement = element[0];
     var theParent = theElement.parentNode;
@@ -222,8 +217,8 @@ var expandElement = function(element, attrs) {
 };
 
 /**
- * Set the value of the 'formName' attribute of the supplied 'receiver' (typcially, a field definition) to be
- * the name of the 'closest' form to the supplied element.
+ * Set the value of the 'formName' attribute of the supplied 'receiver' (typically, a field definition) to be
+ * the name of the 'closest' form element (ancestor-wise) to the supplied element.
  */
 var setFormName = function(receiver, element){
     var formName = null;
@@ -237,8 +232,13 @@ var setFormName = function(receiver, element){
 };
 
 /**
- * Set the 'field' attribute of the supplied scope to hold the field object obtained by traversing the appropriate
- * path through the flexispecs indicated by the value of the supplied 'id' attribute.
+ * Set the 'field' attribute of <scope> to hold a representation of the field object obtained by traversing the appropriate
+ * path through the graph of defined Flexispecs as specified by the value of the supplied 'id' attribute which may be
+ * held in either the 'modelId' attribute (in the case of this being our top-level field definition for the form)
+ * or the 'id' attribute (in all other cases). In the case where we are dealing with a field specifiying a collection-type
+ * value, as indicated by <attributes> having an 'unwrapped' value set to true, we then hold a deep copy as the
+ * field object will serve as we need to modify the type attribute to not be an array but, rather, whatever single element
+ * the original array contained (e.g. 'email' as opposed to ['email']) and we don't want to make that change in the original.
  */
 var setField = function(scope, attributes){
     var modelId = (attributes.id == 'model') ? attributes.modelId : attributes.id;
@@ -252,9 +252,13 @@ var setField = function(scope, attributes){
 };
 
 /**
- * For the given object, <obj>, follow down the supplied <path> (a dot-separated chain of attributes names). When reaching
- * the end of that chain, if <overwrite> is true, set the attribute's value to <value>. Otherwise, check to see if a
- * value already has been set there. If so, do nothing. Otherwise, set the attribute's value to <value>.
+ * Operating on the supplied object, <obj>, (typically a model object being edited in a given form), return the value
+ * of the attribute specified by the given <path> after, optionally, setting the value of that attribute to a supplied value.
+ *
+ * In detail, For the supplied object, <obj>, follow down the supplied <path> (a dot-separated chain of attributes names).
+ * When reaching the end of that chain, if <overwrite> is true, set the attribute's value to <value>. Otherwise,
+ * check to see if a value already has been set there. If so, do not change it. Finally, return the then current value
+ * of the specified attribute (after setting it to the new value if so called for).
  * @param obj The base object on which to set an attribute's value
  * @param path The path or chain of attribute names as a dot-separated list which leads to the attribute whose value you wish to set.
  * @param value The value to set for the attribute.
@@ -290,51 +294,71 @@ var _setValueOfPath = function(obj, path, value, overwrite){
 };
 
 /**
- * Update the provided scope with the field and other options as determined by interpreting the supplied element and attributes.
+ * We are going to process an angular directive against a dynamically generated template. Prepare the <scope> appropriately.
+ *
+ * In detail, set a field attribute to hold the field object as specified by the 'id' in the supplied <attributes>.
+ * If that field represents a collection of things we can edit in-line, we set the scope's 'collection' attribute to
+ * point to the current collection of objects held by the model being edited (or an empty array, if not yet initialized).
+ * Also, set the 'myIndex' attribute to null (indicating that we are currently not actually editing any of the objects
+ * in that nested collection attribute). Also, in this case, we must decide if the collection of 'things' we are editing
+ * is composed of primitive values (strings, dates, numbers, etc) or other complex model objects of a particular type.
+ * If the type for the field is specified as an array of something which is the name of an existing Flexispec, then we
+ * know we have a collection of complex model objects not of primitive objects.
+ *
+ * If field type is not an array, but is either 'single' or 'multi', then the field represents either a single or
+ * multiple selection from a collection of pre-defined 'things'. That being the case, we then determine if the collection
+ * of "things" we will be picking one or more items from is from a hard-coded collection specified literally in the
+ * relevant Flexispec (as indicated by the 'collectionName' attribute holding the value 'string'), from a specific
+ * collection of Fleximodel instances (indicated by the field's collectionName attribute being set to the name of an
+ * existing Flexispec) or from a collection defined in the Global name space (as indicated by the collectionName being
+ * set to the name of a defined global value. In any case, once the collection is found, set the scope's 'options'
+ * attribute to point to that collection.
  */
-var updateScope = function(scope, element, attributes){
-
-    //TODO remove this if we really don't need it ... doesn't appear, at present, to be necessary. ::: setFormName(scope, element);
+var updateScope = function(scope, attributes){
 
     var field = setField(scope, attributes);
+
+    /**
+     * Check if the <collection> has a 'find' function. If so, we can assume the collection is a Meteor collection. If
+     * so, set the field's 'options.collection' attribute to the meteor collection by fetching its contents. Answer true
+     * if the <collection> had a 'find' function.
+     * @param collection
+     * @returns {boolean}
+     */
+    function initializeFieldOptions(collection) {
+        if (collection && typeof collection.find === 'function') {
+            if (!(field.options && typeof field.options === 'object')) {
+                field.options = {};
+            }
+            field.options.collection = ngMeteorForms.meteorFind(collection).fetch();
+            return true;
+        }
+        return false;
+    }
 
     if(_.isNull(field) || _.isUndefined(field)){
         // No field associated with a non-data-oriented element (like a DIV). Do nothing to the scope.
         console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  should not get here")
     }else {
         if(_.isArray(field.type)){
+            scope.collection = _setValueOfPath(scope, getModelId(attributes.id), [], false);
+            scope.myIndex = null;
+            //TODO singleMode should be renamed to something like 'editItemInCollectionMode' (which is an accurate description when this is true vs. 'editWholeCollectionMode' which is accurate when the current variable is false.
             if(ngMeteorForms.meteorFindOne(FlexiSpecs, {name: field.type[0]})){
-                scope.collection = _setValueOfPath(scope, getModelId(attributes.id), [], false);
-                scope.myIndex = null;
                 scope.singleMode = false;
             }else{
-                //  var formScope = angular.element($(element).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
-                var theCollection = _setValueOfPath(scope, getModelId(attributes.id), [], false);
-                //  formScope.model = theCollection;
-                scope.collection = theCollection;
-                scope.myIndex = null;
                 scope.singleMode = true;
             }
         }else if (_.contains(['single', 'multi'], field.type)) {
             if (field.options && field.options.collectionName && typeof field.options.collectionName === 'string') {
 
                 var collection = FlexiModels[field.options.collectionName];
-                //First check if this is a select from a fleximodel
-                if (collection && typeof collection.find === 'function') {
-                    if (!(field.options && typeof field.options === 'object')) {
-                        field.options = {};
-                    }
-                    field.options.collection = ngMeteorForms.meteorFind(collection).fetch();
-                } else {
+                //First check if this is a select from a Fleximodel
+                if(!initializeFieldOptions(collection)){
                     //Else, see if it is the name of a global collection
-                    var collectionName = _.capitalize(owl.deepCopy(field.options.collectionName));
+                    var collectionName = _.capitalize(owl.deepCopy(field.options.collectionName)); // TODO I don't think we need to do a deep copy of this.
                     var meteorCollection = getGlobal(collectionName);
-                    if (meteorCollection && typeof meteorCollection.find === 'function') {
-                        if (!(field.options && typeof field.options === 'object')) {
-                            field.options = {};
-                        }
-                        field.options.collection = ngMeteorForms.meteorFind(meteorCollection).fetch();
-                    }
+                    initializeFieldOptions(meteorCollection);
                 }
             }
         }
@@ -372,10 +396,10 @@ var createNonFieldContext = function(element, attrs){
 };
 
 /**
- * Create construct a context object based on a field definition for use in rendering field replacement templates.
+ * Construct a context object based on a field definition for use in rendering field replacement templates.
  *
  * In detail, we retrieve an appropriate field object and clone it to act as our model. We then augment its attributes
- * with some additional data based on the attributes of the element we are replacing and then return the udpated
+ * with some additional data based on the attributes of the element we are replacing and then return the updated,
  * cloned field object.
  */
 var getFieldAsContextObject = function(element, attrs){
@@ -392,7 +416,7 @@ var getFieldAsContextObject = function(element, attrs){
             field.unwrapped = true;
             field.type = field.type[0];
         }
-        if(field.unwrapped && field.type && !ngMeteorForms.meteorFindOne(FlexiSpecs, {name: field.type})){
+        if(field.unwrapped && !ngMeteorForms.meteorFindOne(FlexiSpecs, {name: field.type})){
             field.modelId = "model[myIndex]"
         }else{
             field.modelId = getModelId(attrs.id);
@@ -407,25 +431,13 @@ var getFieldAsContextObject = function(element, attrs){
     if(field.options && field.options.collection){
         field.options.label = field.options.label ? field.options.label : 'label';
         field.options.value = field.options.value ? field.options.value : 'value';
-
     }
     return field;
-};
-
-var getTemplateForFieldTypeName = function(fieldTypeName){
-    var template = null;
-    if(fieldTypeName) {
-        var sgiTemplateKey = 'sgi' + _.capitalize(fieldTypeName) + 'Field';
-        template = getTemplateForKey(sgiTemplateKey);
-    }
-
-    return template ? template : getTemplateForKey('sgiTextField');
 };
 
 /**
  * Define compile pre-link and controller functions for sgiField directive
  */
-
 var sgiFieldController = function($scope){
 
     var self = $scope;
@@ -456,8 +468,7 @@ var sgiFieldController = function($scope){
 
             if (!doc || !spec) {
                 return true;
-            }
-            ;
+            };
 
             FlexiSpecs.verifyRules(doc, spec, null, errors);
 
@@ -502,9 +513,9 @@ var sgiFieldController = function($scope){
         // });
     };
     $scope.switchModel = function(index, $event){
-        var formScope = angular.element($($event.currentTarget).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
         self.setSelectedIndex(index);
         if(!self.singleMode){
+            var formScope = angular.element($($event.currentTarget).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
             formScope.model = self.collection[index];
         }
         setFocusToNewCollectionModelFirstEntryField($event);
@@ -538,32 +549,32 @@ var sgiFieldController = function($scope){
     };
     $scope.getDisplayString = function(myItem, internal, index, selectedIndex, element) {
         var result = "";
-        if (myItem && typeof myItem.toSgiDisplayString == 'function') {
-            result = myItem.toSgiDisplayString();
-        } else {
-            result = _.reduce(myItem, function (memo, value, attribute) {
-                if (value) {
-                    if (!_.startsWith(attribute, '$') && !(_.startsWith(attribute, '_'))) {
-                        var addOnString = "";
-                        if (typeof value.toSgiDisplayString == 'function') {
-                            addOnString = value.toSgiDisplayString();
-                        } else {
-                            if (typeof value == 'object') {
-                                addOnString = this.getDisplayString(value, true);
+            if (myItem && typeof myItem.toSgiDisplayString == 'function') {
+                result = myItem.toSgiDisplayString();
+            } else {
+                result = _.reduce(myItem, function (memo, value, attribute) {
+                    if (value) {
+                        if (!_.startsWith(attribute, '$') && !(_.startsWith(attribute, '_'))) {
+                            var addOnString = "";
+                            if (typeof value.toSgiDisplayString == 'function') {
+                                addOnString = value.toSgiDisplayString();
                             } else {
-                                addOnString = value;
+                                if (typeof value == 'object') {
+                                    addOnString = this.getDisplayString(value, true);
+                                } else {
+                                    addOnString = value;
+                                }
                             }
-                        }
-                        if (addOnString && !_.isEmpty(addOnString)) {
-                            if (memo && !_.isEmpty(memo)) {
-                                return memo + ", " + addOnString;
+                            if (addOnString && !_.isEmpty(addOnString)) {
+                                if (memo && !_.isEmpty(memo)) {
+                                    return memo + ", " + addOnString;
+                                }
+                                return addOnString;
                             }
-                            return addOnString;
                         }
                     }
-                }
-                return memo;
-            }, "", this);
+                    return memo;
+                }, "", this);
         }
         if (internal || (result && !_.isEmpty(result))) {
             return result;
@@ -583,10 +594,10 @@ var sgiFieldPreLink = function preLink(scope, iElement, iAttrs, controller) {
     var comp = Deps.autorun(function(){
         if(!scope.$$phase) {
             scope.$apply(function () {
-                updateScope(scope, iElement, iAttrs);
+                updateScope(scope, iAttrs);
             })
         }else{
-            updateScope(scope, iElement, iAttrs);
+            updateScope(scope, iAttrs);
         }
     });
 
@@ -796,17 +807,34 @@ Package.meteor.Meteor.startup(function(){
 
     };
 
-    var sgiFieldSgiTemplate = function(element, attrs){
+    var getTemplateForFieldTypeName = function(fieldTypeName){
         var template = null;
-        var context = this.createContext(element, attrs);
+        if(fieldTypeName) {
+            var sgiTemplateKey = 'sgi' + _.capitalize(fieldTypeName) + 'Field';
+            template = getTemplateForKey(sgiTemplateKey);
+        }
+
+        return template ? template : getTemplateForKey('sgiTextField');
+    };
+
+    /**
+     * Return the appropriate template for the provided <element>
+     * @param element
+     * @param attrs
+     */
+    var sgiFieldSgiTemplate = function(element, attrs){
         var templateName = null;
+        var context = getFieldAsContextObject(element, attrs);
+
         if(context){
             templateName = context.getTemplateName();
-          //  sgiTemplateKey = 'sgi' + _.capitalize(templateName) + 'Field';
-          //  template = getTemplateForKey(sgiTemplateKey);
+        }else{
+            console.log('Could not get field for element/attributes:')
+            console.log(element);
+            console.log(attrs);
+            console.log("------");
         }
         return getTemplateForFieldTypeName(templateName);
-      //  return template ? template : getTemplateForKey('sgiTextField');
     };
 
     /**
@@ -814,9 +842,7 @@ Package.meteor.Meteor.startup(function(){
      * function.
      */
     _.each(fieldTemplateNames, function(templateName){
-
         var sgiFieldTemplate = getTemplateForKey(templateName);
-
         sgiFieldTemplate.createContext = sgiFieldCreateContext;
         sgiFieldTemplate.sgiTemplate = sgiFieldSgiTemplate;
     });
@@ -830,7 +856,10 @@ Package.meteor.Meteor.startup(function(){
 
     radioField.createContext = function(element, attrs){
         var context = getFieldAsContextObject(element, attrs);
-        context.orientation = ('vertical' in attrs) ? 'vertical' : '';
+        context.orientation = '';
+        if(context.template && context.template.options && context.template.options.orientation){
+            context.orientation = context.template.options.orientation;
+        }
         var myOptions = [];
         if(context && context.options && context.options.collection) {
             if (_.isArray(context.options.collection)) {
