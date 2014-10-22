@@ -455,7 +455,7 @@ var sgiFieldController = function($scope){
 
     $scope.isInvalidRow = function(index){
 
-        var errors = [];
+        var errors = {};
         var myType = self.field.type[0];
         if(!myType){
             return true;
