@@ -30,7 +30,7 @@ var getTemplateForKey = function(key){
 Package.ui.UI.registerHelper("sgiAutoformElementTemplate", function () {
     var templateName = '_sgiAutoformField';
     if(!this.isCollection()){
-        if(FlexiSpecs.isDefined(this.type.toString())){
+        if(FlexiSpecs.isDefined(this.getTypeName())){
             templateName = '_sgiAutoformFieldGroup';
         }
     }
@@ -76,7 +76,7 @@ var fieldGetTemplate = function () {
     }
     var result = null;
     if (!this.isCollection()) {
-        result = ngMeteorForms.templateMapping[this.type];
+        result = ngMeteorForms.templateMapping[this.getTypeName()];
         if (result) {
             if (typeof result == 'function') {
                 return result.call(this);
@@ -96,7 +96,7 @@ var fieldGetTemplate = function () {
             }
         }
     }
-    return this.type ? this.type : null;
+    return this.getTypeName() ? this.getTypeName() : null;
 };
 
 /**
@@ -140,7 +140,7 @@ getField = function (fieldId) {
 
     _.each(_.initial(attributeMap), function(attributeName){
         //TODO clean this up by moving the "getTypeForFieldNamed(xxx)" into the prototype for type.
-        typeName = type.getField(attributeName).type;
+        typeName = type.getField(attributeName).getTypeName();
         type = FlexiSpecs.findByName(typeName);
         if(!type){return null};
     });
@@ -239,7 +239,7 @@ var setField = function(scope, attributes){
     var theField = getField(modelId);
     if(theField.isCollection() && attributes.unwrapped){
         theField = owl.deepCopy(theField);
-        theField.type = theField.type[0];
+        theField.type = theField.getTypeName();
     }
     scope.field = theField;
     return theField;
@@ -338,12 +338,12 @@ var updateScope = function(scope, attributes){
             scope.collection = _setValueOfPath(scope, getModelId(attributes.id), [], false);
             scope.myIndex = null;
             //TODO singleMode should be renamed to something like 'editItemInCollectionMode' (which is an accurate description when this is true vs. 'editWholeCollectionMode' which is accurate when the current variable is false.
-            if(FlexiSpecs.isDefined(field.type[0])){
+            if(FlexiSpecs.isDefined(field.getTypeName())){
                 scope.singleMode = false;
             }else{
                 scope.singleMode = true;
             }
-        }else if (_.contains(['single', 'multi'], field.type)) {
+        }else if (_.contains(['single', 'multi'], field.getTypeName())) {
             if (field.options && field.options.collectionName && typeof field.options.collectionName === 'string') {
 
                 var collection = FlexiModels[field.options.collectionName];
@@ -408,9 +408,9 @@ var getFieldAsContextObject = function(element, attrs){
         setFormName(field, element);
         if(field.isCollection && attrs.unwrapped){
             field.unwrapped = true;
-            field.type = field.type[0];
+            field.type = field.getTypeName();
         }
-        if(field.unwrapped && !FlexiSpecs.isDefined(field.type)){
+        if(field.unwrapped && !FlexiSpecs.isDefined(field.getTypeName())){
             field.modelId = "model[myIndex]"
         }else{
             field.modelId = getModelId(attrs.id);
@@ -553,7 +553,7 @@ var sgiFieldController = function($scope){
             result = (ngMeteorForms.displayStringRegistry[theIdentifier])(myItem);
         } else {
             if (field && field.isCollection()) {
-                theIdentifier = field.type[0];
+                theIdentifier = field.getTypeName();
                 if (theIdentifier && ngMeteorForms.displayStringRegistry[theIdentifier] && typeof ngMeteorForms.displayStringRegistry[theIdentifier] == "function") {
                     result = (ngMeteorForms.displayStringRegistry[theIdentifier])(myItem);
                 }

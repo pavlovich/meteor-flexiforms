@@ -23,7 +23,7 @@ Package.templating.Template['_sgiAutoformFieldGroup'].helpers({
         if(this.label) {
             return this.label;
         }else{
-            return this.type;
+            return this.getTypeName();
         }
     },
     addGroupBox: function(a, b, c){
