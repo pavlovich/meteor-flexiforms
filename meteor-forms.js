@@ -29,7 +29,7 @@ var getTemplateForKey = function(key){
  */
 Package.ui.UI.registerHelper("sgiAutoformElementTemplate", function () {
     var templateName = '_sgiAutoformField';
-    if(!_.isArray(this.type)){
+    if(!this.isCollection()){
         if(FlexiSpecs.isDefined(this.type.toString())){
             templateName = '_sgiAutoformFieldGroup';
         }
@@ -75,7 +75,7 @@ var fieldGetTemplate = function () {
         }
     }
     var result = null;
-    if (!_.isArray(this.type)) {
+    if (!this.isCollection()) {
         result = ngMeteorForms.templateMapping[this.type];
         if (result) {
             if (typeof result == 'function') {
@@ -85,7 +85,7 @@ var fieldGetTemplate = function () {
             }
         }
     }else{
-        if(_.isArray(this.type)){
+        if(this.isCollection()){
             result = ngMeteorForms.templateMapping['collection'];
             if (result) {
                 if (typeof result == 'function') {
@@ -237,7 +237,7 @@ var setFormName = function(receiver, element){
 var setField = function(scope, attributes){
     var modelId = (attributes.id == 'model') ? attributes.modelId : attributes.id;
     var theField = getField(modelId);
-    if(_.isArray(theField.type) && attributes.unwrapped){
+    if(theField.isCollection() && attributes.unwrapped){
         theField = owl.deepCopy(theField);
         theField.type = theField.type[0];
     }
@@ -334,7 +334,7 @@ var updateScope = function(scope, attributes){
         // No field associated with a non-data-oriented element (like a DIV). Do nothing to the scope.
         console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  should not get here")
     }else {
-        if(_.isArray(field.type)){
+        if(field.isCollection()){
             scope.collection = _setValueOfPath(scope, getModelId(attributes.id), [], false);
             scope.myIndex = null;
             //TODO singleMode should be renamed to something like 'editItemInCollectionMode' (which is an accurate description when this is true vs. 'editWholeCollectionMode' which is accurate when the current variable is false.
@@ -406,7 +406,7 @@ var getFieldAsContextObject = function(element, attrs){
     if(field) {
         field = owl.deepCopy(field);
         setFormName(field, element);
-        if(attrs.unwrapped && _.isArray(field.type)){
+        if(field.isCollection && attrs.unwrapped){
             field.unwrapped = true;
             field.type = field.type[0];
         }
@@ -520,10 +520,13 @@ var sgiFieldController = function($scope){
     };
     $scope.addModel = function(collectionx, $event){
         var formScope = angular.element($($event.currentTarget).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
-        var newSpec = self.field.type;
-        if(_.isArray(newSpec)){
-            newSpec = newSpec[0];
-        };
+
+        var newSpec = self.field.getTypeName();
+        //TODO remove this
+        //var newSpec = self.field.type;
+        //if(self.field.isCollection()){
+        //    newSpec = newSpec[0];
+        //};
 
         var newObj = FlexiSpecs.create(newSpec);
 
@@ -549,7 +552,7 @@ var sgiFieldController = function($scope){
         if (theIdentifier && ngMeteorForms.displayStringRegistry[theIdentifier] && typeof ngMeteorForms.displayStringRegistry[theIdentifier] == "function") {
             result = (ngMeteorForms.displayStringRegistry[theIdentifier])(myItem);
         } else {
-            if (field && _.isArray(field.type)) {
+            if (field && field.isCollection()) {
                 theIdentifier = field.type[0];
                 if (theIdentifier && ngMeteorForms.displayStringRegistry[theIdentifier] && typeof ngMeteorForms.displayStringRegistry[theIdentifier] == "function") {
                     result = (ngMeteorForms.displayStringRegistry[theIdentifier])(myItem);

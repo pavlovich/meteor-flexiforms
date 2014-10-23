@@ -19,7 +19,7 @@
         <div class="error" ng-if="field.validation.min.value"><span class="error" ng-show="{{formName}}.{{fieldId}}.$dirty && {{formName}}.{{fieldId}}.$error.minlength">[[field.validation.min.message || 'Too short!']]</span></div>
         <div class="error" ng-if="field.validation.max.value"><span class="error" ng-show="{{formName}}.{{fieldId}}.$dirty && {{formName}}.{{fieldId}}.$error.maxlength">[[field.validation.max.message || 'Too long!']]</span></div>
         <div class="error" ng-if="field.validation.pattern.value"><span class="error" ng-show="{{formName}}.{{fieldId}}.$error.pattern">[[field.validation.pattern.message || 'Wrong pattern!']]</span></div>
-        <div class="error" ng-if="field.type == 'email' || (_.isArray(field.type) && field.type[0] == 'email')"><span class="error" ng-show="{{formName}}.{{fieldId}}.$error.email && {{formName}}.{{fieldId}}.$dirty">[[field.validation.email.message || 'Invalid Email!']]</span></div>
+        <div class="error" ng-if="field.type == 'email' || (field.isCollection() && field.getTypeName() == 'email')"><span class="error" ng-show="{{formName}}.{{fieldId}}.$error.email && {{formName}}.{{fieldId}}.$dirty">[[field.validation.email.message || 'Invalid Email!']]</span></div>
         <div class="c-message" ng-if="field.message" ng-show="{{formName}}.{{fieldId}}.$dirty && {{formName}}.{{fieldId}}.$invalid">[[field.message]]</div>
     </div>
 </template>
