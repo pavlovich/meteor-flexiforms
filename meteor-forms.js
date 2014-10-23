@@ -239,7 +239,7 @@ var setField = function(scope, attributes){
     var theField = getField(modelId);
     if(theField.isCollection() && attributes.unwrapped){
         theField = owl.deepCopy(theField);
-        theField.type = theField.getTypeName();
+        theField.holdsCollection = 'false';
     }
     scope.field = theField;
     return theField;
@@ -408,7 +408,7 @@ var getFieldAsContextObject = function(element, attrs){
         setFormName(field, element);
         if(field.isCollection && attrs.unwrapped){
             field.unwrapped = true;
-            field.type = field.getTypeName();
+            field.holdsCollection = 'false';
         }
         if(field.unwrapped && !FlexiSpecs.isDefined(field.getTypeName())){
             field.modelId = "model[myIndex]"
@@ -450,7 +450,7 @@ var sgiFieldController = function($scope){
     $scope.isInvalidRow = function(index){
 
         var errors = {};
-        var myType = self.field.getTypeName(); // TODO .type[0];
+        var myType = self.field.getTypeName();
         if(!myType){
             return true;
         }
@@ -522,11 +522,6 @@ var sgiFieldController = function($scope){
         var formScope = angular.element($($event.currentTarget).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
 
         var newSpec = self.field.getTypeName();
-        //TODO remove this
-        //var newSpec = self.field.type;
-        //if(self.field.isCollection()){
-        //    newSpec = newSpec[0];
-        //};
 
         var newObj = FlexiSpecs.create(newSpec);
 

@@ -91,9 +91,8 @@ Package.templating.Template['sgiAutoform'].helpers({
                 var parentField = getField(parentFieldName);
                 var theField = owl.deepCopy(origField);
                 if(unwrapped){
-                    //TODO we won't have to do this once types are not ever arrays
-                    theField.type = origTypeName;
                     theField.unwrapped = true;
+                    theField.holdsCollection = 'false';
                     theField.id = fieldName;
                 }
                 theField.base = 'model';
