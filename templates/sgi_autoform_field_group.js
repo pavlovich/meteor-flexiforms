@@ -4,20 +4,20 @@
 
 Package.templating.Template['_sgiAutoformFieldGroup'].helpers({
     getFields: function(fieldsObject) {
+
         var self = this;
-        var type = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: this.type.toString()});
-        var fieldsObject = type.fields;
-        var fields = [];
-        _.each(fieldsObject, function (value, index) {
-            if(fieldsObject.hasOwnProperty(index)) {
-                var obj = owl.deepCopy(value);
-                obj.base = self.base + "." + index;
-                obj.field = value;
-                obj.inline = self.inline ? true : false;
-                obj.parentField = type;
-                fields.push(obj);
-            }});
-        return fields;
+        var type = fieldsObject.getType();
+
+        //TODO get rid of fieldmap usage. Revert to expecting an array.
+        var fields = type.getFieldMap();
+
+        _.each(fields, function (field, index) {
+            field.base = self.base + "." + index;
+            //TODO need to test inline fields. Do they display as expected?
+            field.inline = self.inline ? true : false;
+            field.parentField = type;
+        });
+        return _.toArray(fields);
     },
     groupLabel: function(a, b, c){
         if(this.label) {

@@ -63,46 +63,45 @@ var hasController = function(element){
 
 var _getModelFields = function(modelName){
     var type = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: modelName});
-    var fieldsObject = type.fields;
-    var fields = [];
-    _.each(fieldsObject, function (fieldSpec, fieldName) {
-        if(fieldsObject.hasOwnProperty(fieldName)) {
-            var fieldModel = owl.deepCopy(fieldSpec);
-            fieldModel.base = modelName + "." + fieldName;
-            fieldModel.field = fieldSpec;
-            fieldModel.parentField = type;
-            fields.push(fieldModel);
-        }});
-    return fields;
-}
+    if(!type){
+        return [];
+    };
+    //TODO get rid of fieldmap usage. Revert to expecting an array.
+    var fields = type.getFieldMap();
+    _.each(fields, function (field, fieldName) {
+        field.base = modelName + "." + fieldName;
+        field.field = field; //TODO do we need this?
+        field.parentField = type;
+    });
+    return _.toArray(fields);
+};
 
 /**
  * Define spacebars helpers for the Autoform template.
  */
 Package.templating.Template['sgiAutoform'].helpers({
     getFieldFields: function(fieldName, unwrapped){
+        var result = [];
         var origField = getField(fieldName);
-        if(origField && origField.type && _.isArray(origField.type)){
-            var origType = origField.type[0];
-            var containedType = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: origType});
-            if(containedType){
-                return _getModelFields(origType);
-            }else{
+        var origTypeName = origField.getTypeName();
+        if(origField.isCollection()){
+            result = _getModelFields(origTypeName);
+            if(!FlexiSpecs.isDefined(origTypeName)){
                 var parentFieldName = fieldName.split(".").slice(0, -1).join("");
                 var parentField = getField(parentFieldName);
-                var origField = getField(fieldName);
                 var theField = owl.deepCopy(origField);
-                if(unwrapped && _.isArray(theField.type)){
-                    theField.type = theField.type[0];
+                if(unwrapped){
+                    //TODO we won't have to do this once types are not ever arrays
+                    theField.type = origTypeName;
                     theField.unwrapped = true;
                     theField.id = fieldName;
                 }
                 theField.base = 'model';
-                theField.field = origField;
                 theField.parentField = parentField;
-                return [theField]
+                result = [theField]
             }
         }
+        return result;
     },
     /**
      * For the provided <modelName>, return a collection of fields to use in generating a form-based UI for that flexisepc.

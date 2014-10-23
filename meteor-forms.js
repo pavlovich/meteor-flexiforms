@@ -135,23 +135,19 @@ var getModelId = function(dataId) {
  * component of the fieldId, it is assumed that it is a 'primitive' type ('text', 'boolean', 'single', 'multi', etc).
  */
 getField = function (fieldId) {
-    var typeMap = {};
-    $(FlexiSpecs)
-        .map(function() {
-            typeMap[this.name] = this;
-        });
     var attributeMap = fieldId.split('.');
     var typeName = _.first(attributeMap);
-    var type = {fields: {}};
-    (type.fields)[typeName] = {type: typeName};
+    var type = FlexiSpecs.createDummy(typeName);
 
     _.each(_.initial(attributeMap), function(attributeName){
-        typeName = (type.fields)[attributeName].type;
+        //TODO clean this up by moving the "getTypeForFieldNamed(xxx)" into the prototype for type.
+        typeName = type.getField(attributeName).type;
+        //TODO clean this up by moving this into FlexiSpecs.findTypeByName(xxx)
         type = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: typeName});
         if(!type){return null};
     });
 
-    var field = (type.fields)[_.last(attributeMap)];
+    var field = type.getField(_.last(attributeMap));
     field.getTemplateName = fieldGetTemplate;
 
     return field;
