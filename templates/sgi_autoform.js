@@ -92,7 +92,7 @@ Package.templating.Template['sgiAutoform'].helpers({
                 var theField = owl.deepCopy(origField);
                 if(unwrapped){
                     theField.unwrapped = true;
-                    theField.holdsCollection = 'false';
+                    theField.holdsCollection = false;
                     theField.id = fieldName;
                 }
                 theField.base = 'model';
