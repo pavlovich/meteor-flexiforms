@@ -62,7 +62,7 @@ var hasController = function(element){
 };
 
 var _getModelFields = function(modelName){
-    var type = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: modelName});
+    var type = FlexiSpecs.findByName(modelName);
     if(!type){
         return [];
     };

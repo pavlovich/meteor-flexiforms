@@ -28,7 +28,7 @@ Package.templating.Template['_sgiAutoformFieldGroup'].helpers({
     },
     addGroupBox: function(a, b, c){
         return !(this.embed);
-       // var objType = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: this.type.toString()});
+       // var objType = FlexiSpecs.findByName(this.type.toString());
        // return !(objType && objType.embed);
     }
 });

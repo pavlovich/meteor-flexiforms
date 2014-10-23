@@ -30,8 +30,7 @@ var getTemplateForKey = function(key){
 Package.ui.UI.registerHelper("sgiAutoformElementTemplate", function () {
     var templateName = '_sgiAutoformField';
     if(!_.isArray(this.type)){
-        var flexiSpec = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: this.type.toString()});
-        if(flexiSpec){
+        if(FlexiSpecs.isDefined(this.type.toString())){
             templateName = '_sgiAutoformFieldGroup';
         }
     }
@@ -142,8 +141,7 @@ getField = function (fieldId) {
     _.each(_.initial(attributeMap), function(attributeName){
         //TODO clean this up by moving the "getTypeForFieldNamed(xxx)" into the prototype for type.
         typeName = type.getField(attributeName).type;
-        //TODO clean this up by moving this into FlexiSpecs.findTypeByName(xxx)
-        type = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: typeName});
+        type = FlexiSpecs.findByName(typeName);
         if(!type){return null};
     });
 
@@ -340,7 +338,7 @@ var updateScope = function(scope, attributes){
             scope.collection = _setValueOfPath(scope, getModelId(attributes.id), [], false);
             scope.myIndex = null;
             //TODO singleMode should be renamed to something like 'editItemInCollectionMode' (which is an accurate description when this is true vs. 'editWholeCollectionMode' which is accurate when the current variable is false.
-            if(ngMeteorForms.meteorFindOne(FlexiSpecs, {name: field.type[0]})){
+            if(FlexiSpecs.isDefined(field.type[0])){
                 scope.singleMode = false;
             }else{
                 scope.singleMode = true;
@@ -412,7 +410,7 @@ var getFieldAsContextObject = function(element, attrs){
             field.unwrapped = true;
             field.type = field.type[0];
         }
-        if(field.unwrapped && !ngMeteorForms.meteorFindOne(FlexiSpecs, {name: field.type})){
+        if(field.unwrapped && !FlexiSpecs.isDefined(field.type)){
             field.modelId = "model[myIndex]"
         }else{
             field.modelId = getModelId(attrs.id);
@@ -452,13 +450,13 @@ var sgiFieldController = function($scope){
     $scope.isInvalidRow = function(index){
 
         var errors = {};
-        var myType = self.field.type[0];
+        var myType = self.field.getTypeName(); // TODO .type[0];
         if(!myType){
             return true;
         }
         var doc = this.collection && this.collection[index] ? this.collection[index] : null;
 
-        var mySpec = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: myType});
+        var mySpec = FlexiSpecs.findByName(myType);
         if(mySpec) {
             var spec = (myType) ? mySpec : null;
 
@@ -730,11 +728,10 @@ Package.meteor.Meteor.startup(function(){
             this.preSave();
             console.log("Built-in Save happening now!");
             var baseObj = this.getModel();
-            var baseSpec = ngMeteorForms.meteorFindOne(FlexiSpecs, {name: this.flexiModelname});
-            var converted = FlexiSpecs.convert(baseObj, baseSpec);
+
             //TODO have to validate yet.
-            FlexiModels[this.flexiModelname].insert(converted);
-            console.log("Built-in Save complete.")
+            FlexiModels.meteorInsert(this.flexiModelname, baseObj);
+            console.log("Built-in Save complete.");
             this.postSave();
         };
         $scope.preSave = function(){
