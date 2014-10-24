@@ -239,7 +239,7 @@ var setField = function(scope, attributes){
     var theField = getField(modelId);
     if(theField.isCollection() && attributes.unwrapped){
         theField = owl.deepCopy(theField);
-        theField.holdsCollection = 'false';
+        theField.holdsCollection = false;
     }
     scope.field = theField;
     return theField;
@@ -408,7 +408,7 @@ var getFieldAsContextObject = function(element, attrs){
         setFormName(field, element);
         if(field.isCollection && attrs.unwrapped){
             field.unwrapped = true;
-            field.holdsCollection = 'false';
+            field.holdsCollection = false;
         }
         if(field.unwrapped && !FlexiSpecs.isDefined(field.getTypeName())){
             field.modelId = "model[myIndex]"
