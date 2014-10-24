@@ -1,16 +1,16 @@
-Meteor Forms
-============
+Meteor Flexiforms
+=================
 > Flexible, Internationalizable, Meta-data-driven, Angular-based Forms for Meteor.
 
 ## Quick start
 1. Install [Meteor](http://docs.meteor.com/#quickstart) <code>curl https://install.meteor.com | /bin/sh</code>
 2. Install [Meteorite](https://github.com/oortcloud/meteorite#installing-meteorite) <code>npm install -g meteorite</code>
 3. Create a new meteor app using <code>meteor create myapp</code> or navigate to the root of your existing app.
-4. Install meteor-forms <code>mrt add meteor-forms</code>
+4. Install meteor-flexiforms <code>mrt add meteor-flexiforms</code>
 
 ## Usage
 ### Table of Contents
-- [Advanced Use](http://github.com/pavlovich/meteor-forms#advanced-use)
+- [Advanced Use](http://github.com/pavlovich/meteor-flexiforms#advanced-use)
 
 ### Advanced Use
 If you would like to take more direct control over the content and presentation of your flexiform, you can manually lay out your form as in the following example:
@@ -31,3 +31,4 @@ If you would like to take more direct control over the content and presentation 
         <sgi-field data-id="person.address.street1"></sgi-field>
         <sgi-field data-id="person.address.street2"></sgi-field>
     </sgi-field-group>
+

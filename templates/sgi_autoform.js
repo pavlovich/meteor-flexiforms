@@ -19,12 +19,12 @@ _getModelFieldBaseName = function(result){
 /**
  * Return the name that should be used to identify the angular controller to be applied for the provided <element>.
  *
- * In detail, if the <element> provided has an attribute named 'meteor-forms-controller', return the value of that attribute.
+ * In detail, if the <element> provided has an attribute named 'meteor-flexiforms-controller', return the value of that attribute.
  * If it does not have such an attribute but does have a 'model' attribute, return the value of that attribute, in camelCase + 'Controller'.
  * If neither of these attributes are defined on the <element>, then return 'testController'.
  */
 var _getControllerName = function(element){
-    var result = getAttributeFromElement(element, 'meteor-forms-controller');
+    var result = getAttributeFromElement(element, 'meteor-flexiforms-controller');
     if(result){
         return result;
     }else{

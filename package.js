@@ -35,7 +35,7 @@ Package.on_use(function (api) {
         'templates/sgi_autoform_field_group.js',
         'templates/sgi_text_field.js',
         'templates/sgi_field_group.js',
-        'meteor-forms.js'
+        'meteor-flexiforms.js'
 	], 'client');
 
     // Exports the ngMeteor package scope
