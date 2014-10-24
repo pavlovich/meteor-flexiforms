@@ -3,21 +3,19 @@
  */
 
 Package.templating.Template['_sgiAutoformFieldGroup'].helpers({
-    getFields: function(fieldsObject) {
+    getFields: function(theField) {
 
         var self = this;
-        var type = fieldsObject.getType();
+        var type = theField.getType();
+        var fields = type.getFields();
 
-        //TODO get rid of fieldmap usage. Revert to expecting an array.
-        var fields = type.getFieldMap();
-
-        _.each(fields, function (field, index) {
-            field.base = self.base + "." + index;
+        _.each(fields, function (field) {
+            field.base = self.base + "." + field.name;
             //TODO need to test inline fields. Do they display as expected?
             field.inline = self.inline ? true : false;
             field.parentField = type;
         });
-        return _.toArray(fields);
+        return fields;
     },
     groupLabel: function(a, b, c){
         if(this.label) {

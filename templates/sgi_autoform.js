@@ -66,14 +66,12 @@ var _getModelFields = function(modelName){
     if(!type){
         return [];
     };
-    //TODO get rid of fieldmap usage. Revert to expecting an array.
-    var fields = type.getFieldMap();
-    _.each(fields, function (field, fieldName) {
-        field.base = modelName + "." + fieldName;
-        field.field = field; //TODO do we need this?
+    var fields = type.getFields();
+    _.each(fields, function (field) {
+        field.base = modelName + "." + field.name;
         field.parentField = type;
     });
-    return _.toArray(fields);
+    return fields;
 };
 
 /**
