@@ -35,6 +35,8 @@ Package.on_use(function (api) {
         'templates/sgi_autoform_field_group.js',
         'templates/sgi_text_field.js',
         'templates/sgi_field_group.js',
+        'templates/sgi_field_validations.html',
+        'templates/sgi_field_validations.js',
         'meteor-flexiforms.js'
 	], 'client');
 

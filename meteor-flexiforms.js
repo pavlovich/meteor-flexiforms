@@ -140,6 +140,7 @@ getField = function (fieldId) {
 
     _.each(_.initial(attributeMap), function(attributeName){
         //TODO clean this up by moving the "getTypeForFieldNamed(xxx)" into the prototype for type.
+        var theField = type.getField(attributeName);
         typeName = type.getField(attributeName).getTypeName();
         type = FlexiSpecs.findByName(typeName);
         if(!type){return null};
@@ -312,24 +313,6 @@ var updateScope = function(scope, attributes){
 
     var field = setField(scope, attributes);
 
-    /**
-     * Check if the <collection> has a 'find' function. If so, we can assume the collection is a Meteor collection. If
-     * so, set the field's 'options.collection' attribute to the meteor collection by fetching its contents. Answer true
-     * if the <collection> had a 'find' function.
-     * @param collection
-     * @returns {boolean}
-     */
-    function initializeFieldOptions(collection) {
-        if (collection && typeof collection.find === 'function') {
-            if (!(field.options && typeof field.options === 'object')) {
-                field.options = {};
-            }
-            field.options.collection = ngMeteorForms.meteorFind(collection).fetch();
-            return true;
-        }
-        return false;
-    }
-
     if(_.isNull(field) || _.isUndefined(field)){
         // No field associated with a non-data-oriented element (like a DIV). Do nothing to the scope.
         console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  should not get here")
@@ -338,28 +321,11 @@ var updateScope = function(scope, attributes){
             scope.collection = _setValueOfPath(scope, getModelId(attributes.id), [], false);
             scope.myIndex = null;
             //TODO singleMode should be renamed to something like 'editItemInCollectionMode' (which is an accurate description when this is true vs. 'editWholeCollectionMode' which is accurate when the current variable is false.
-            if(FlexiSpecs.isDefined(field.getTypeName())){
-                scope.singleMode = false;
-            }else{
-                scope.singleMode = true;
-            }
-        }else if (_.contains(['single', 'multi'], field.getTypeName())) {
-            if (field.options && field.options.collectionName && typeof field.options.collectionName === 'string') {
-
-                var collection = FlexiModels[field.options.collectionName];
-                //First check if this is a select from a Fleximodel
-                if(!initializeFieldOptions(collection)){
-                    //Else, see if it is the name of a global collection
-                    var collectionName = _.capitalize(owl.deepCopy(field.options.collectionName)); // TODO I don't think we need to do a deep copy of this.
-                    var meteorCollection = getGlobal(collectionName);
-                    initializeFieldOptions(meteorCollection);
-                }
-            }
+            scope.singleMode = !field.referencesValidModel();
+        }else{
+            field.initializeCollection();
         }
-
-        if (field.options) {
-            scope.options = field.options.collection;
-        }
+        scope.options = field.getMyCollection();
     }
 };
 
@@ -422,10 +388,7 @@ var getFieldAsContextObject = function(element, attrs){
     }else{
         console.log("unable to find field with id: " + modelId);
     }
-    if(field.options && field.options.collection){
-        field.options.label = field.options.label ? field.options.label : 'label';
-        field.options.value = field.options.value ? field.options.value : 'value';
-    }
+    field.validateCollectionOptions();
     return field;
 };
 
@@ -495,11 +458,7 @@ var sgiFieldController = function($scope){
         $(widget).closest(".radio-group").removeClass("focus");
     };
     $scope.showErrorMessageFor = function(errorType){
-        try{
-            return self.field.validation[errorType].value !== null
-        }catch(e){
-            return false;
-        }
+        return self.field.hasValidationOfType(errorType)
     };
     $scope.setSelectedIndex = function(index){
         // self.$apply(function(){
@@ -868,22 +827,14 @@ Package.meteor.Meteor.startup(function(){
         if(context.template && context.template.options && context.template.options.orientation){
             context.orientation = context.template.options.orientation;
         }
-        var myOptions = [];
-        if(context && context.options && context.options.collection) {
-            if (_.isArray(context.options.collection)) {
-                myOptions = context.options.collection;
-            } else {
-                myOptions = ngMeteorForms.meteorFind(FlexiModels[context.options.collection]).fetch();
-            }
-        }
+        var myOptions = context.getMyCollectionContents();
         _.each(myOptions, function(option){
             option._modelId = context.modelId;
             option._name = context.name;
-            option._id = context.name + "." + option[context.options.value];
-            option._value = option[context.options.value];
-            option._label = option[context.options.label];
+            option._id = context.name + "." + option[context.getCollectionValueAttributeName()];
+            option._value = option[context.getCollectionValueAttributeName()];
+            option._label = option[context.getCollectionLabelAttributeName()];
         });
-
         context.collection = myOptions;
         return context;
     };

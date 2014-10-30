@@ -23,8 +23,7 @@
                 <div ng-show="myIndex == null && collection.length">Click an item in the list above to edit</div>
 
             </div>
-            <div class="error" ng-if="field.validation.minCount.value"><span class="error" ng-show="{{formName}}.{{fieldId}}.$dirty && {{formName}}.{{fieldId}}.$error.sgiMincount">[[field.validation.minCount.message || 'Too few!']]</span></div>
-            <div class="error" ng-if="field.validation.maxCount.value"><span class="error" ng-show="{{formName}}.{{fieldId}}.$dirty && {{formName}}.{{fieldId}}.$error.sgiMaxcount">[[field.validation.maxCount.message || 'Too many!']]</span></div>
+           {{> sgiFieldValidations }}
 
         </sgi-field-group>
     </div>

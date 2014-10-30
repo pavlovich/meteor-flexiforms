@@ -17,6 +17,6 @@ Package.templating.Template['sgiSelectField'].helpers({
         return specString;
     },
     getOptions: function(){
-        return this.options;
+        return this.getMyOptions();
     }
 });
