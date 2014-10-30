@@ -18,7 +18,7 @@
     ],
     [
       "blaze",
-      "2.0.2"
+      "2.0.3"
     ],
     [
       "blaze-tools",
@@ -42,7 +42,7 @@
     ],
     [
       "ddp",
-      "1.0.10"
+      "1.0.11"
     ],
     [
       "deps",
@@ -90,11 +90,11 @@
     ],
     [
       "logging",
-      "1.0.4"
+      "1.0.5"
     ],
     [
       "meteor",
-      "1.1.2"
+      "1.1.3"
     ],
     [
       "meteor-fleximodel",
@@ -114,11 +114,11 @@
     ],
     [
       "minifiers",
-      "1.1.1"
+      "1.1.2"
     ],
     [
       "minimongo",
-      "1.0.4"
+      "1.0.5"
     ],
     [
       "moment",
@@ -126,7 +126,7 @@
     ],
     [
       "mongo",
-      "1.0.7"
+      "1.0.8"
     ],
     [
       "mongo-livedata",
@@ -178,7 +178,7 @@
     ],
     [
       "templating",
-      "1.0.8"
+      "1.0.9"
     ],
     [
       "tracker",
@@ -198,7 +198,7 @@
     ],
     [
       "webapp",
-      "1.1.3"
+      "1.1.4"
     ],
     [
       "webapp-hashing",
@@ -206,6 +206,6 @@
     ]
   ],
   "pluginDependencies": [],
-  "toolVersion": "meteor-tool@1.0.34",
+  "toolVersion": "meteor-tool@1.0.35",
   "format": "1.0"
 }
