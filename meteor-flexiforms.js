@@ -388,7 +388,7 @@ var getFieldAsContextObject = function(element, attrs){
     }else{
         console.log("unable to find field with id: " + modelId);
     }
-    field.validateCollectionOptions();
+    field.validateCollectionInfo();
     return field;
 };
 
