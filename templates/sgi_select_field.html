@@ -1,4 +1,4 @@
-<template name="sgiSelectField">
+<template name="mffSelectField">
     <div class="form-group" >
         <label for="{{fieldId}}">
             [[field.label]]
@@ -11,6 +11,6 @@
                 <option value="" ng-if="field.message">[[field.message]]</option>
             </select>
         </div>
-        {{> sgiFieldValidations }}
+        {{> mffFieldValidations }}
     </div>
 </template>

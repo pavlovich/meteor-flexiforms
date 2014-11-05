@@ -2,7 +2,7 @@
  * Created by pavlovich on 5/7/14.
  */
 
-Package.templating.Template['_sgiAutoformFieldGroup'].helpers({
+Package.templating.Template['_mffAutoformFieldGroup'].helpers({
     getFields: function(theField) {
 
         var self = this;

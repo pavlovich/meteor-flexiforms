@@ -77,7 +77,7 @@ var _getModelFields = function(modelName){
 /**
  * Define spacebars helpers for the Autoform template.
  */
-Package.templating.Template['sgiAutoform'].helpers({
+Package.templating.Template['mffAutoform'].helpers({
     getFieldFields: function(fieldName, unwrapped){
         var result = [];
         var origField = getField(fieldName);
@@ -133,7 +133,7 @@ Package.templating.Template['sgiAutoform'].helpers({
                 }
             }
             return 'testForm';
-        }
+            }
     },
     getControllerName: function(element){
         if(hasController(element)) {

@@ -2,7 +2,7 @@
  * Created by pavlovich on 5/7/14.
  */
 
-Package.templating.Template['sgiTextField'].helpers({
+Package.templating.Template['mffTextField'].helpers({
     shouldShowLabel: function(){
         if(this.showLabel){
             return true;
@@ -49,7 +49,7 @@ Package.templating.Template['sgiTextField'].helpers({
             return type;
         }
     },
-    getSgiType: function(type){
+    getMffType: function(type){
         if(type == 'datesingle'){
             return 'datesingle';
         }else if (type == 'datetimesingle') {

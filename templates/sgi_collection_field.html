@@ -1,30 +1,30 @@
-<template name="sgiCollectionField">
+<template name="mffCollectionField">
     <div>
-        <sgi-field-group class="sgi-collection-field" name="[[field.label]]">
+        <mff-field-group class="mff-collection-field" name="[[field.label]]">
             <div>
-                <div class="sgi-collection-add-button">
+                <div class="mff-collection-add-button">
                     <button ng-click="addModel(collection, $event)"><i class="fa fa-plus-square"></i><!--<span class="glyphicon glyphicon-plus"></span> --></button>
                 </div>
                 <div>Click the '+' to add a new one</div>
-                <div ng-show="hasAvailableCollection(collection)" class="sgi-collection-selection-list">
+                <div ng-show="hasAvailableCollection(collection)" class="mff-collection-selection-list">
 
                     <div class="collection-selection-row" ng-repeat="item in collection">
-                        <div class="span12 sgi-collection-selection-item-row" ng-class="{selected: isSelectedRow($index), invalid: isInvalidRow($index)}" ng-click="switchModel($index, $event)"><div class="span11">[[getDisplayString(item, false, $index, myIndex, "{{modelId}}", field)]]</div><div ng-click="removeModel($index)" class="span1 sgi-collection-selection-item-remove-button"><i class="fa fa-trash-o"></i></div></div>
+                        <div class="span12 mff-collection-selection-item-row" ng-class="{selected: isSelectedRow($index), invalid: isInvalidRow($index)}" ng-click="switchModel($index, $event)"><div class="span11">[[getDisplayString(item, false, $index, myIndex, "{{modelId}}", field)]]</div><div ng-click="removeModel($index)" class="span1 mff-collection-selection-item-remove-button"><i class="fa fa-trash-o"></i></div></div>
                     </div>
                 </div>
             </div>
 
             <hr ng-if="collection.length">
-            <div class="sgi-new-model" ng-show="collection.length">
+            <div class="mff-new-model" ng-show="collection.length">
                 <div ng-show="myIndex != null">
-                    <sgi-autoform class="sgi-collection-field-new-model" field="{{id}}" unwrapped="true"></sgi-autoform>
+                    <mff-autoform class="mff-collection-field-new-model" field="{{id}}" unwrapped="true"></mff-autoform>
                 </div>
 
                 <div ng-show="myIndex == null && collection.length">Click an item in the list above to edit</div>
 
             </div>
-           {{> sgiFieldValidations }}
+           {{> mffFieldValidations }}
 
-        </sgi-field-group>
+        </mff-field-group>
     </div>
 </template>

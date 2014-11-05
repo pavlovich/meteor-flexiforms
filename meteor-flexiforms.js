@@ -27,11 +27,11 @@ var getTemplateForKey = function(key){
  * the current element having a 'type' attribute value which matches the name of an existing FlexiType document.
  * Otherwise, return a generic field element template.
  */
-Package.ui.UI.registerHelper("sgiAutoformElementTemplate", function () {
-    var templateName = '_sgiAutoformField';
+Package.ui.UI.registerHelper("mffAutoformElementTemplate", function () {
+    var templateName = '_mffAutoformField';
     if(!this.isCollection()){
         if(FlexiSpecs.isDefined(this.getTypeName())){
-            templateName = '_sgiAutoformFieldGroup';
+            templateName = '_mffAutoformFieldGroup';
         }
     }
     return getTemplateForKey(templateName);
@@ -41,7 +41,7 @@ Package.ui.UI.registerHelper("sgiAutoformElementTemplate", function () {
  * If the current element has 'inline' set to true, output the string 'inline' to be output as a marker attribute for the current element.
  * Otherwise, output an empty string.
  */
-Package.ui.UI.registerHelper("sgiInline", function () {
+Package.ui.UI.registerHelper("mffInline", function () {
     if(this.inline){
         return " inline";
     }else{
@@ -163,7 +163,7 @@ getField = function (fieldId) {
  * registered their own custom replacement template to use in place of our 'stock' template. This is done using the
  * 'getTemplateForKey' function which checks the internal registry which maps standard element names to the name of the
  * template to use when replacing those elements. Next we grab the template associated with whatever template name we
- * have arrived at thus far. We then check to see if that template defines a method named 'sgiTemplate'. If so, it is
+ * have arrived at thus far. We then check to see if that template defines a method named 'mffTemplate'. If so, it is
  * assumed that this function will act as an 'override' function and we will call that function, passing the same
  * arguments that we received as parameters to our own calling. We expect this override function to return the final
  * template for use to use in replacing the current element. If no override function is defined for the arrived at
@@ -174,10 +174,10 @@ getField = function (fieldId) {
  * with the package-supplied templates. This feature is used to allow users of the package to dynamically replace the 'stock'
  * field template with a template of the package consumer's choice.
  */
-var getSgiElementTemplate = function(element, attributes){
+var getMffElementTemplate = function(element, attributes){
     var templateName = element.context.localName.toCamel();
     var template = getTemplateForKey(templateName);
-    template = (template.sgiTemplate && typeof template.sgiTemplate == 'function') ? template.sgiTemplate(element, attributes) : template;
+    template = (template.mffTemplate && typeof template.mffTemplate == 'function') ? template.mffTemplate(element, attributes) : template;
     return template;
 };
 
@@ -199,7 +199,7 @@ var getSgiElementTemplate = function(element, attributes){
  */
 var expandElement = function(element, attributes) {
 
-    var template = getSgiElementTemplate(element, attributes);
+    var template = getMffElementTemplate(element, attributes);
     var context = template.createContext(element, attributes);
 
     var theElement = element[0];
@@ -393,14 +393,14 @@ var getFieldAsContextObject = function(element, attrs){
 };
 
 /**
- * Define compile pre-link and controller functions for sgiField directive
+ * Define compile pre-link and controller functions for mffField directive
  */
-var sgiFieldController = function($scope){
+var mffFieldController = function($scope){
 
     var self = $scope;
 
     var setFocusToNewCollectionModelFirstEntryField = function($event){
-        var element = $($event.currentTarget).closest('.sgi-collection-field').find('.sgi-new-model').find('input:not([type=hidden]):first');
+        var element = $($event.currentTarget).closest('.mff-collection-field').find('.mff-new-model').find('input:not([type=hidden]):first');
         setTimeout(function(){
             element.focus();
         }, 1);
@@ -442,6 +442,7 @@ var sgiFieldController = function($scope){
                 return true;
             }
         }
+
         return !_.isEmpty(errors);
     };
 
@@ -468,7 +469,7 @@ var sgiFieldController = function($scope){
     $scope.switchModel = function(index, $event){
         self.setSelectedIndex(index);
         if(!self.singleMode){
-            var formScope = angular.element($($event.currentTarget).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
+            var formScope = angular.element($($event.currentTarget).closest('.mff-collection-field').find('ng-form').parent().parent()).scope();
             formScope.model = self.collection[index];
         }
         setFocusToNewCollectionModelFirstEntryField($event);
@@ -478,7 +479,7 @@ var sgiFieldController = function($scope){
         self.setSelectedIndex(null);
     };
     $scope.addModel = function(collectionx, $event){
-        var formScope = angular.element($($event.currentTarget).closest('.sgi-collection-field').find('ng-form').parent().parent()).scope();
+        var formScope = angular.element($($event.currentTarget).closest('.mff-collection-field').find('ng-form').parent().parent()).scope();
 
         var newSpec = self.field.getTypeName();
 
@@ -515,15 +516,15 @@ var sgiFieldController = function($scope){
         }
 
         if(_.isNull(result)) {
-            if (myItem && typeof myItem.toSgiDisplayString == 'function') {
-                result = myItem.toSgiDisplayString();
+            if (myItem && typeof myItem.toMffDisplayString == 'function') {
+                result = myItem.toMffDisplayString();
             } else {
                 result = _.reduce(myItem, function (memo, value, attribute) {
                     if (value) {
                         if (!_.startsWith(attribute, '$') && !(_.startsWith(attribute, '_'))) {
                             var addOnString = "";
-                            if (typeof value.toSgiDisplayString == 'function') {
-                                addOnString = value.toSgiDisplayString();
+                            if (typeof value.toMffDisplayString == 'function') {
+                                addOnString = value.toMffDisplayString();
                             } else {
                                 if (typeof value == 'object') {
                                     addOnString = this.getDisplayString(value, true);
@@ -556,7 +557,7 @@ var sgiFieldController = function($scope){
     };
 };
 
-var sgiFieldPreLink = function preLink(scope, iElement, iAttrs, controller) {
+var mffFieldPreLink = function preLink(scope, iElement, iAttrs, controller) {
     scope.xid = iAttrs.id;
     scope.modelId = getModelId(iAttrs.id);
     var comp = Deps.autorun(function(){
@@ -574,10 +575,10 @@ var sgiFieldPreLink = function preLink(scope, iElement, iAttrs, controller) {
     });
 };
 
-var sgiFieldCompile = function compile(element, attrs) {
+var mffFieldCompile = function compile(element, attrs) {
     expandElement(element, attrs);
     return {
-        pre: sgiFieldPreLink
+        pre: mffFieldPreLink
     }
 };
 
@@ -589,34 +590,34 @@ var sgiFieldCompile = function compile(element, attrs) {
 
 ngMeteorForms
 /**
- * The 'sgiField' directive replaces 'sgi-field' elements with an appropriate input-type field based on the field
+ * The 'mffField' directive replaces 'mff-field' elements with an appropriate input-type field based on the field
  * definition specified by the value of the 'data-id' attribute of this HTML element.
  */
-    .directive('sgiField', ['$compile', function ($compile) {
+    .directive('mffField', ['$compile', function ($compile) {
         return {
             restrict: 'E',
             scope: true,
-            controller: ['$scope', sgiFieldController],
-            compile: sgiFieldCompile
+            controller: ['$scope', mffFieldController],
+            compile: mffFieldCompile
         };
     }])
-    .directive('sgiMaxcount', function (){
+    .directive('mffMaxcount', function (){
         return {
             restrict: 'A',
             require: 'ngModel',
             link: ['$scope', function(scope, elem, attr, ngModel) {
-                if(attr.sgiMaxcount) {
+                if(attr.mffMaxcount) {
 
                     //For DOM -> model validation
                     ngModel.$parsers.unshift(function (value) {
-                        var valid = attr.sgiMaxCount < value.length;
-                        ngModel.$setValidity('sgiMaxCount', valid);
+                        var valid = attr.mffMaxCount < value.length;
+                        ngModel.$setValidity('mffMaxCount', valid);
                         return valid ? value : value;
                     });
 
                     //For model -> DOM validation
                     ngModel.$formatters.unshift(function (value) {
-                        ngModel.$setValidity('sgiMaxCount', attr.sgiMaxCount < value.length);
+                        ngModel.$setValidity('mffMaxCount', attr.mffMaxCount < value.length);
                         return value;
                     });
                 }
@@ -642,14 +643,14 @@ Package.meteor.Meteor.startup(function(){
      * the other for 'non-field' or 'other' templates.
      */
     var fieldTemplateNames = [];
-    var otherSgiTemplateNames = [];
+    var otherMffTemplateNames = [];
 
     for(key in Package.templating.Template){
-        if(key.match('^(sgi).+')) {
-            if (key.match('^(sgi).*(Field)$')) {
+        if(key.match('^(mff).+')) {
+            if (key.match('^(mff).*(Field)$')) {
                 fieldTemplateNames.push(key);
             } else {
-                otherSgiTemplateNames.push(key);
+                otherMffTemplateNames.push(key);
             }
         }
     };
@@ -657,21 +658,22 @@ Package.meteor.Meteor.startup(function(){
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Define common, standard 'createContext' and 'sgiTemplate' functions.
+     * Define common, standard 'createContext' and 'mffTemplate' functions.
      */
 
     var standardCompile = function compile(element, attrs){
         expandElement(element, attrs);
     };
 
-    var standardSgiTemplate = function(element, attrs){return this};
+    var standardMffTemplate = function(element, attrs){return this};
 
 
     /**
-     * Define compile pre-link and controller functions for sgiAutoform directive
+     * Define compile pre-link and controller functions for mffAutoform directive
      */
 
-    var sgiAutoformController = function($scope){
+    var mffAutoformController = function($scope){
+        console.log($scope);
         var self = $scope;
 
         $scope.getModel = function(){
@@ -703,7 +705,7 @@ Package.meteor.Meteor.startup(function(){
         }
     };
 
-    var sgiAutoformPreLink = function preLink(scope, iElement, iAttrs, controller){
+    var mffAutoformPreLink = function preLink(scope, iElement, iAttrs, controller){
         var comp = Deps.autorun(function(){
             scope.flexiModelname = iAttrs['model'];
             scope.unwrapped = iAttrs['unwrapped'];
@@ -719,10 +721,10 @@ Package.meteor.Meteor.startup(function(){
         });
     };
 
-    var sgiAutoformCompile = function compile(element, attrs){
+    var mffAutoformCompile = function compile(element, attrs){
         expandElement(element, attrs);
         return {
-            pre: sgiAutoformPreLink
+            pre: mffAutoformPreLink
         }
     };
 
@@ -730,9 +732,9 @@ Package.meteor.Meteor.startup(function(){
     /**
      * For each non-field-oriented template, define a directive for that template which simply replaces the corresponding
      * elements with the results of rendering that template in an appropriate context. Also augment each of these templates
-     * providing them with a createContext and a sgiTemplate function.
+     * providing them with a createContext and a mffTemplate function.
      */
-    _.each(otherSgiTemplateNames, function(directiveName){
+    _.each(otherMffTemplateNames, function(directiveName){
 
         var directiveDefinition = {
             restrict: 'E',
@@ -740,12 +742,12 @@ Package.meteor.Meteor.startup(function(){
         };
 
         /**
-         * The 'sgiAutoform' directive replaces the 'sgi-autoform' element with a fully functional input/edit form based on
+         * The 'mffAutoform' directive replaces the 'mff-autoform' element with a fully functional input/edit form based on
          * the model specified by the flexispec whose name matches the value of the 'model' attribute of this HTML element.
          */
-        if(directiveName == 'sgiAutoform'){
-            directiveDefinition.compile = sgiAutoformCompile;
-            directiveDefinition.controller = sgiAutoformController;
+        if(directiveName == 'mffAutoform'){
+            directiveDefinition.compile = mffAutoformCompile;
+            directiveDefinition.controller = mffAutoformController;
             directiveDefinition.scope = true;
         }
 
@@ -753,16 +755,16 @@ Package.meteor.Meteor.startup(function(){
 
         var template = getTemplateForKey(directiveName);
         template.createContext = createNonFieldContext;
-        template.sgiTemplate = standardSgiTemplate;
+        template.mffTemplate = standardMffTemplate;
     });
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Define common field 'createContext' and 'sgiTemplate' functions
+     * Define common field 'createContext' and 'mffTemplate' functions
      */
 
-    var sgiFieldCreateContext = function(element, attrs){
+    var mffFieldCreateContext = function(element, attrs){
         var result = getFieldAsContextObject(element, attrs);
         var theName = getAttributeFromElement(element, 'field');
         if(theName){
@@ -777,11 +779,11 @@ Package.meteor.Meteor.startup(function(){
     var getTemplateForFieldTypeName = function(fieldTypeName){
         var template = null;
         if(fieldTypeName) {
-            var sgiTemplateKey = 'sgi' + _.capitalize(fieldTypeName) + 'Field';
-            template = getTemplateForKey(sgiTemplateKey);
+            var mffTemplateKey = 'mff' + _.capitalize(fieldTypeName) + 'Field';
+            template = getTemplateForKey(mffTemplateKey);
         }
 
-        return template ? template : getTemplateForKey('sgiTextField');
+        return template ? template : getTemplateForKey('mffTextField');
     };
 
     /**
@@ -789,7 +791,7 @@ Package.meteor.Meteor.startup(function(){
      * @param element
      * @param attrs
      */
-    var sgiFieldSgiTemplate = function(element, attrs){
+    var mffFieldMffTemplate = function(element, attrs){
         var templateName = null;
         var context = getFieldAsContextObject(element, attrs);
 
@@ -805,13 +807,13 @@ Package.meteor.Meteor.startup(function(){
     };
 
     /**
-     * For each field-oriented template, simply augment the template with an appropriate 'createContext' and 'sgiTemplate'
+     * For each field-oriented template, simply augment the template with an appropriate 'createContext' and 'mffTemplate'
      * function.
      */
     _.each(fieldTemplateNames, function(templateName){
-        var sgiFieldTemplate = getTemplateForKey(templateName);
-        sgiFieldTemplate.createContext = sgiFieldCreateContext;
-        sgiFieldTemplate.sgiTemplate = sgiFieldSgiTemplate;
+        var mffFieldTemplate = getTemplateForKey(templateName);
+        mffFieldTemplate.createContext = mffFieldCreateContext;
+        mffFieldTemplate.mffTemplate = mffFieldMffTemplate;
     });
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -819,7 +821,7 @@ Package.meteor.Meteor.startup(function(){
     /**
      * For the radio field template (actually a radio button group), customize the 'createContext' function.
      */
-    var radioField = getTemplateForKey('sgiRadioField');
+    var radioField = getTemplateForKey('mffRadioField');
 
     radioField.createContext = function(element, attrs){
         var context = getFieldAsContextObject(element, attrs);
@@ -844,7 +846,7 @@ Package.meteor.Meteor.startup(function(){
     /**
      * For the radio button template, customize the 'createContext' function.
      */
-    var radioButton = getTemplateForKey('sgiRadioButton');
+    var radioButton = getTemplateForKey('mffRadioButton');
 
     radioButton.createContext = function(element, attrs){
         return owl.deepCopy(attrs);
@@ -853,11 +855,11 @@ Package.meteor.Meteor.startup(function(){
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * For the sgiAutoForm template, customize the 'createContext' function.
+     * For the mffAutoForm template, customize the 'createContext' function.
      */
-    var sgiAutoform = getTemplateForKey('sgiAutoform');
+    var mffAutoform = getTemplateForKey('mffAutoform');
 
-    sgiAutoform.createContext = function(element, attrs){
+    mffAutoform.createContext = function(element, attrs){
         var context = createNonFieldContext(element, attrs);
         var modelNameString = attrs['model'] ? (_.capitalize(attrs['model']) + " ") : "";
         context.formTitle = "New " + modelNameString + "Information";
@@ -869,7 +871,7 @@ Package.meteor.Meteor.startup(function(){
     /**
      * For the collection field template, customize the 'createContext' function.
      */
-    var collectionField = getTemplateForKey('sgiCollectionField');
+    var collectionField = getTemplateForKey('mffCollectionField');
 
     collectionField.createContext = function(element, attrs){
         var context = getFieldAsContextObject(element, attrs);

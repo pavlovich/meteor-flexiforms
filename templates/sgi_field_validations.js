@@ -2,7 +2,7 @@
  * Created by pavlovich on 10/27/14.
  */
 
-Package.templating.Template['sgiFieldValidations'].helpers({
+Package.templating.Template['mffFieldValidations'].helpers({
     formName: function(parentObj){
         if(parentObj) {
             return parentObj['formName'];

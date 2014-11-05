@@ -15,20 +15,20 @@ Meteor Flexiforms
 ### Advanced Use
 If you would like to take more direct control over the content and presentation of your flexiform, you can manually lay out your form as in the following example:
 
-    <sgi-field-group name="Name">
-        <sgi-field data-id="person.name.firstName"></sgi-field>
-        <sgi-field data-id="person.name.lastName"></sgi-field>
-        <sgi-field data-id="person.birthdate"></sgi-field>
-        <sgi-field data-id="person.blahdate"></sgi-field>
-        <sgi-field data-id="person.age"></sgi-field>
-        <sgi-field data-id="person.livedAbroad"></sgi-field>
+    <mff-field-group name="Name">
+        <mff-field data-id="person.name.firstName"></mff-field>
+        <mff-field data-id="person.name.lastName"></mff-field>
+        <mff-field data-id="person.birthdate"></mff-field>
+        <mff-field data-id="person.blahdate"></mff-field>
+        <mff-field data-id="person.age"></mff-field>
+        <mff-field data-id="person.livedAbroad"></mff-field>
 
-        <sgi-field data-id="person.hair"></sgi-field>
-        <sgi-field data-id="person.gender" ></sgi-field>
-        <sgi-field data-id="person.smoker"></sgi-field>
-    </sgi-field-group>
-    <sgi-field-group name="Address">
-        <sgi-field data-id="person.address.street1"></sgi-field>
-        <sgi-field data-id="person.address.street2"></sgi-field>
-    </sgi-field-group>
+        <mff-field data-id="person.hair"></mff-field>
+        <mff-field data-id="person.gender" ></mff-field>
+        <mff-field data-id="person.smoker"></mff-field>
+    </mff-field-group>
+    <mff-field-group name="Address">
+        <mff-field data-id="person.address.street1"></mff-field>
+        <mff-field data-id="person.address.street2"></mff-field>
+    </mff-field-group>
 

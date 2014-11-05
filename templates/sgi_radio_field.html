@@ -1,9 +1,9 @@
-<template name="sgiRadioField">
+<template name="mffRadioField">
     <div class="form-group">
         <label for="{{modelId}}">[[field.label]]</label>
-            <div class="radio-group sgi-tooltip {{orientation}}" title="[[field.message]]">
+            <div class="radio-group mff-tooltip {{orientation}}" title="[[field.message]]">
             {{#each collection}}
-                <sgi-radio-button ng-model="{{_modelId}}" name="{{_name}}" id="{{_id}}" value="{{_value}}" label="{{_label}}"></sgi-radio-button>
+                <mff-radio-button ng-model="{{_modelId}}" name="{{_name}}" id="{{_id}}" value="{{_value}}" label="{{_label}}"></mff-radio-button>
             {{/each}}
             </div>
     </div>

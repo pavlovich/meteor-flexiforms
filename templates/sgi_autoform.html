@@ -1,25 +1,25 @@
-<template name="sgiAutoform">
+<template name="mffAutoform">
     <div>
-        <div class="sgi-auto-form">
-            <sgi-form name="{{getFormName getElement}}" novalidate="" mainform="{{model}}" class="{{getFormClass getElement}}" ng-controller="{{getControllerName getElement}}" >
+        <div class="mff-auto-form">
+            <mff-form name="{{getFormName getElement}}" novalidate="" mainform="{{model}}" class="{{getFormClass getElement}}" ng-controller="{{getControllerName getElement}}" >
                 <div class="meteor-form-fields">
                     <div class="copy-width narrow">
                         {{#if model}}
-                            <sgi-field-group name="{{formTitle}}">
+                            <mff-field-group name="{{formTitle}}">
                                     <input type="hidden" name="model" value="{{model}}"/>
                                     {{#each getModelFields model }}
-                                        {{> sgiAutoformElementTemplate }}
+                                        {{> mffAutoformElementTemplate }}
                                     {{/each}}
-                            </sgi-field-group>
+                            </mff-field-group>
                         {{else}}
                             <input type="hidden" name="field" value="{{field}}"/>
                             {{#each getFieldFields field unwrapped }}
-                                {{> sgiAutoformElementTemplate }}
+                                {{> mffAutoformElementTemplate }}
                             {{/each}}
                         {{/if}}
                     </div>
                 </div>
-            </sgi-form>
+            </mff-form>
         </div>
     </div>
 </template>

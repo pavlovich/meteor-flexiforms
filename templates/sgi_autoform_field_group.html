@@ -1,13 +1,13 @@
-<template name="_sgiAutoformFieldGroup">
+<template name="_mffAutoformFieldGroup">
     {{#if addGroupBox}}
-        <sgi-field-group name="{{groupLabel}}" inline="{{inline}}">
+        <mff-field-group name="{{groupLabel}}" inline="{{inline}}">
         {{#each getFields this}}
-            {{> sgiAutoformElementTemplate }}
+            {{> mffAutoformElementTemplate }}
         {{/each}}
-        </sgi-field-group>
+        </mff-field-group>
     {{else}}
         {{#each getFields this}}
-        {{> sgiAutoformElementTemplate }}
+        {{> mffAutoformElementTemplate }}
         {{/each}}
     {{/if}}
 </template>

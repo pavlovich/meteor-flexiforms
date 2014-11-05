@@ -1,11 +1,11 @@
-<template name="sgiForm">
+<template name="mffForm">
     <div ng-controller="{{ngController}}">
         <ng-form name="{{name}}" class="{{class}}">
             <div class="form-inline">
                 {{{contents}}}
             </div>
             {{#if mainform}}
-                {{> sgiFormButtons }}
+                {{> mffFormButtons }}
             {{/if}}
         </ng-form>
     </div>

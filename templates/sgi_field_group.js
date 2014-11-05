@@ -2,10 +2,10 @@
  * Created by pavlovich on 5/7/14.
  */
 
-Package.templating.Template['sgiFieldGroup'].helpers({
+Package.templating.Template['mffFieldGroup'].helpers({
     inlineFlex: function(){
         if(this.inline == "true"){
-            return "sgi-inline-flex";
+            return "mff-inline-flex";
         }else{
             return "";
         }

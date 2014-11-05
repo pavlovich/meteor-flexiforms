@@ -1,4 +1,4 @@
-<template name="sgiFieldValidations">
+<template name="mffFieldValidations">
        {{#each validation}}
            <div class="error" ng-if="field.hasValidationOfType('{{type}}')">
                <span class="error" ng-show="{{formName [..]}}.{{fieldId [..]}}.$dirty && {{formName [..]}}.{{fieldId [..]}}.$error.{{type}}">{{getErrorMessageForType this}}</span>
