@@ -1,18 +1,22 @@
 Package.describe({
-	summary: "Internationalizable, meta-data-driven, angular-based forms for meteor."
+  name: 'sgi:flexiforms',
+  version: '0.0.2',
+  summary: 'Internationalizable, meta-data-driven, angular-based forms for meteor.',
+  git: 'https://github.com/pavlovich/meteor-flexiforms',
+  documentation: 'README.md'
 });
 
 Package.on_use(function (api) {
-    api.use('blaze', 'client');
-    api.use('templating', 'client');
-    api.use('stylus', 'client');
-    api.use('underscore-string-latest', 'client');
-    api.use('ng-meteor', ['client']);
-    api.use('meteor-fleximodel', ['client', 'server']);
-    api.use('meteor-ng-datepicker', 'client');
+    api.use('blaze@2.0.4', 'client');
+    api.use('templating@1.0.11', 'client');
+    api.use('stylus@1.0.6', 'client');
+    api.use('wizonesolutions:underscore-string@1.0.0', 'client');
+    api.use('sgi:ng-meteor@0.0.1', ['client']);
+    api.use('sgi:fleximodel@0.0.2', ['client', 'server']);
+    api.use('sgi:ng-datepicker@0.0.1', 'client');
 
     // Files to load in Client only.
-    api.add_files([
+    api.addFiles([
         'lib/extensions/string.js',
         'lib/collections/flexispec.js',
         'lib/angular/modules.js',
