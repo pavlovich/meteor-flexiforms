@@ -1,19 +1,20 @@
 Package.describe({
   name: 'sgi:flexiforms',
-  version: '0.0.2',
+  version: '0.0.3',
   summary: 'Internationalizable, meta-data-driven, angular-based forms for meteor.',
   git: 'https://github.com/pavlovich/meteor-flexiforms',
   documentation: 'README.md'
 });
 
 Package.on_use(function (api) {
-    api.use('blaze@2.0.4', 'client');
-    api.use('templating@1.0.11', 'client');
-    api.use('stylus@1.0.6', 'client');
+    api.versionsFrom('METEOR@1.0.3')
+    api.use('blaze', 'client');
+    api.use('templating', 'client');
+    api.use('stylus', 'client');
     api.use('wizonesolutions:underscore-string@1.0.0', 'client');
-    api.use('sgi:ng-meteor@0.0.1', ['client']);
-    api.use('sgi:fleximodel@0.0.2', ['client', 'server']);
-    api.use('sgi:ng-datepicker@0.0.1', 'client');
+    api.use('sgi:ng-meteor@0.0.2', 'client');
+    api.use('sgi:fleximodel@0.0.3');
+    api.use('sgi:ng-datepicker@0.0.2', 'client');
 
     // Files to load in Client only.
     api.addFiles([
@@ -46,12 +47,12 @@ Package.on_use(function (api) {
 
     // Exports the ngMeteor package scope
     api.export('ngMeteorForms', 'client');
-    api.export('FlexiSpecs', ['client', 'server']);
-    api.export('FlexiModel', ['client', 'server']);
-    api.export('FlexiModels', ['client', 'server']);
+    api.export('FlexiSpecs');
+    api.export('FlexiModel');
+    api.export('FlexiModels');
     api.export('ngMeteorFleximodel', 'client');
-    api.export('FastRender', ['client', 'server']);
+    api.export('FastRender');
     api.export('ngMeteor', 'client');
-    api.export('sprintf', ['client', 'server']);
+    api.export('sprintf');
 
 });
