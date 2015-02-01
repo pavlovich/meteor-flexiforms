@@ -23,8 +23,8 @@ localstorage@1.0.2
 logging@1.0.6
 matb33:collection-hooks@0.7.9
 meteor@1.1.4
-meteorhacks:fast-render@2.3.0
-meteorhacks:inject-data@1.2.1
+meteorhacks:fast-render@2.3.1
+meteorhacks:inject-data@1.2.2
 meteorhacks:picker@1.0.1
 minifiers@1.1.3
 minimongo@1.0.6
@@ -37,11 +37,11 @@ reactive-var@1.0.4
 retry@1.0.2
 routepolicy@1.0.4
 service-configuration@1.0.3
-sgi:flexiforms@0.0.2
-sgi:fleximodel@0.0.2
-sgi:ng-datepicker@0.0.1
-sgi:ng-meteor@0.0.1
-sgi:sprintfjs@0.0.1
+sgi:flexiforms@0.0.3
+sgi:fleximodel@0.0.3
+sgi:ng-datepicker@0.0.2
+sgi:ng-meteor@0.0.2
+sgi:sprintfjs@0.0.2
 spacebars@1.0.5
 spacebars-compiler@1.0.4
 stylus@1.0.6
